@@ -8,6 +8,7 @@ const AlumnosPage = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [currentStudent, setCurrentStudent] = useState(null);
     const [familiares, setFamiliares] = useState([]);
+    const [preceptoresDisponibles, setPreceptoresDisponibles] = useState([]);
     const [newFamiliar, setNewFamiliar] = useState({ nombre: '', apellido: '', dni: '', relacion: 'Madre' });
 
     useEffect(() => {
@@ -16,7 +17,9 @@ const AlumnosPage = () => {
 
     const loadStudents = () => {
         const data = StorageService.get(STORAGE_KEYS.STUDENTS, []);
+        const preceptores = StorageService.get(STORAGE_KEYS.PRECEPTORS, []);
         setStudents(data);
+        setPreceptoresDisponibles(preceptores);
     };
 
     const handleSave = (e) => {
@@ -191,8 +194,13 @@ const AlumnosPage = () => {
                                     <input type="time" name="horaSalida" defaultValue={currentStudent?.horaSalida} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
                                 </div>
                                 <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Preceptor Asignado</label>
-                                    <input name="preceptor" defaultValue={currentStudent?.preceptor} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+                                    <label className="block text-sm font-medium text-slate-700 mb-1">Preceptor Asignado (Opcional)</label>
+                                    <select name="preceptor" defaultValue={currentStudent?.preceptor || ""} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                                        <option value="">Seleccione o autodetectar (Por Curso)</option>
+                                        {preceptoresDisponibles.map(p => (
+                                            <option key={p.id} value={p.id}>{p.apellido}, {p.nombre}</option>
+                                        ))}
+                                    </select>
                                 </div>
                             </div>
 

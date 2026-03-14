@@ -7,6 +7,7 @@ const RegistroRetiroPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
     const [results, setResults] = useState([]);
     const [selectedStudent, setSelectedStudent] = useState(null);
+    const [preceptorAsignado, setPreceptorAsignado] = useState(null);
     const [isSearching, setIsSearching] = useState(false);
 
     // Estado del Formulario de Retiro
@@ -55,6 +56,28 @@ const RegistroRetiroPage = () => {
         setSelectedStudent(student);
         setSearchTerm('');
         setResults([]);
+
+        // Buscar el preceptor asociado
+        const preceptores = StorageService.get(STORAGE_KEYS.PRECEPTORS, []);
+        let preceptorMatch = null;
+        
+        // 1. Prioridad: El alumno tiene un preceptor.id explícitamente guardado
+        if (student.preceptor) {
+            preceptorMatch = preceptores.find(p => p.id === student.preceptor);
+        }
+
+        // 2. Si no tiene id/nombre preciso o no se encontró, buscar según el curso del alumno en las listas de cursos de preceptores
+        if (!preceptorMatch) {
+             preceptorMatch = preceptores.find(p => {
+                 if (p.cursos && p.cursos.length > 0) {
+                     return p.cursos.some(c => c.curso === student.curso && c.division === student.division);
+                 } else { // Compatibilidad con estructura vieja de preceptor (curso string y division string)
+                     return p.curso === student.curso && p.division === student.division;
+                 }
+             });
+        }
+        
+        setPreceptorAsignado(preceptorMatch || null);
     };
 
     const handleRegistrar = (e) => {
@@ -81,6 +104,7 @@ const RegistroRetiroPage = () => {
             StorageService.addItem(STORAGE_KEYS.WITHDRAWALS, retiro);
             alert('Retiro registrado exitosamente');
             setSelectedStudent(null);
+            setPreceptorAsignado(null);
             setMotivo('Enfermedad');
             setAdultoId('');
         } catch (err) {
@@ -156,6 +180,15 @@ const RegistroRetiroPage = () => {
                                 <span>Curso: {selectedStudent.curso} "{selectedStudent.division}"</span>
                                 <span>Turno: {selectedStudent.turno}</span>
                             </div>
+                            {preceptorAsignado ? (
+                                <div className="mt-4 bg-blue-800/50 text-blue-50 px-3 py-2.5 rounded-lg text-sm border border-blue-400/30 flex items-center gap-2 w-max">
+                                    <UserCheck size={16} /> Preceptor Asignado: <span className="font-bold">{preceptorAsignado.nombre} {preceptorAsignado.apellido}</span>
+                                </div>
+                            ) : (
+                                <div className="mt-4 bg-blue-800/50 text-blue-200 px-3 py-2.5 rounded-lg text-sm border border-blue-400/30 flex items-center gap-2 w-max opacity-80">
+                                    <UserCheck size={16} /> Sin preceptor asignado
+                                </div>
+                            )}
                         </div>
                         <button
                             onClick={() => setSelectedStudent(null)}

@@ -97,6 +97,9 @@ const Layout = () => {
                             <NavLink to="/alumnos" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
                                 <Users size={20} /> Alumnos y Familiares
                             </NavLink>
+                            <NavLink to="/preceptores" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
+                                <UserCheck size={20} /> Preceptores
+                            </NavLink>
                             <NavLink to="/historial-retiros" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-orange-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
                                 <Calendar size={20} /> Historial de Retiros
                             </NavLink>

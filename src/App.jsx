@@ -9,6 +9,7 @@ import RegistroRetiroPage from './pages/RegistroRetiro';
 import ConfiguracionPage from './pages/Configuracion';
 import ReportesPage from './pages/Reportes';
 import HistorialRetirosPage from './pages/HistorialRetiros';
+import PreceptoresPage from './pages/Preceptores';
 import { ROLES } from './config/constants';
 
 // Proteger rutas de administrador
@@ -55,6 +56,11 @@ const AppRoutes = () => {
         <Route path="configuracion" element={
           <AdminRoute>
             <ConfiguracionPage />
+          </AdminRoute>
+        } />
+        <Route path="preceptores" element={
+          <AdminRoute>
+            <PreceptoresPage />
           </AdminRoute>
         } />
 

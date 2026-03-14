@@ -57,6 +57,7 @@ const StorageService = {
         if (!localStorage.getItem(STORAGE_KEYS.STUDENTS)) this.set(STORAGE_KEYS.STUDENTS, []);
         if (!localStorage.getItem(STORAGE_KEYS.WITHDRAWALS)) this.set(STORAGE_KEYS.WITHDRAWALS, []);
         if (!localStorage.getItem(STORAGE_KEYS.SETTINGS)) this.set(STORAGE_KEYS.SETTINGS, {});
+        if (!localStorage.getItem(STORAGE_KEYS.PRECEPTORS)) this.set(STORAGE_KEYS.PRECEPTORS, []);
     },
 
     /**
@@ -103,6 +104,7 @@ const StorageService = {
             withdrawals: this.get(STORAGE_KEYS.WITHDRAWALS),
             users: this.get(STORAGE_KEYS.USERS),
             settings: this.get(STORAGE_KEYS.SETTINGS),
+            preceptors: this.get(STORAGE_KEYS.PRECEPTORS),
             exportDate: new Date().toISOString()
         };
         return JSON.stringify(backup, null, 2);
@@ -118,6 +120,7 @@ const StorageService = {
             if (data.withdrawals && Array.isArray(data.withdrawals)) this.set(STORAGE_KEYS.WITHDRAWALS, data.withdrawals);
             if (data.users && Array.isArray(data.users)) this.set(STORAGE_KEYS.USERS, data.users);
             if (data.settings) this.set(STORAGE_KEYS.SETTINGS, data.settings);
+            if (data.preceptors && Array.isArray(data.preceptors)) this.set(STORAGE_KEYS.PRECEPTORS, data.preceptors);
             return true;
         } catch (err) {
             console.error('Invalid JSON for import', err);

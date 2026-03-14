@@ -6,6 +6,7 @@ export const STORAGE_KEYS = {
     WITHDRAWALS: 'school_withdrawal_records',
     USERS: 'school_withdrawal_users',
     SETTINGS: 'school_withdrawal_settings',
+    PRECEPTORS: 'school_withdrawal_preceptors',
 };
 
 export const ROLES = {
