@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import StorageService from '../storage/localStorage';
 import { STORAGE_KEYS } from '../config/constants';
-import { Plus, Edit, Trash2, Users, UserPlus, X } from 'lucide-react';
+import { Plus, Edit, Trash2, Users, UserPlus, X, GraduationCap, ShieldCheck, User } from 'lucide-react';
 
 const AlumnosPage = () => {
     const [students, setStudents] = useState([]);
@@ -91,7 +91,7 @@ const AlumnosPage = () => {
                 </div>
                 <button
                     onClick={openNew}
-                    className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors"
+                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5"
                 >
                     <Plus size={18} /> Nuevo Alumno
                 </button>
@@ -99,7 +99,7 @@ const AlumnosPage = () => {
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-600">
+                    <table className="w-full text-left text-sm text-slate-600 min-w-[700px]">
                         <thead className="bg-slate-50 text-slate-500 uppercase font-medium border-b border-slate-100">
                             <tr>
                                 <th className="px-6 py-4">Estudiante</th>
@@ -120,25 +120,30 @@ const AlumnosPage = () => {
                             ) : (
                                 students.map(student => (
                                     <tr key={student.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-slate-800">
+                                        <td className="px-6 py-4 font-medium text-slate-800 flex items-center gap-2">
+                                            <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
+                                                <GraduationCap size={16} />
+                                            </div>
                                             {student.apellido}, {student.nombre}
                                         </td>
-                                        <td className="px-6 py-4">{student.dni}</td>
-                                        <td className="px-6 py-4">{student.curso} "{student.division}"</td>
-                                        <td className="px-6 py-4">{student.turno}</td>
+                                        <td className="px-6 py-4 text-slate-500">{student.dni}</td>
+                                        <td className="px-6 py-4"><span className="font-medium text-slate-700">{student.curso} "{student.division}"</span></td>
+                                        <td className="px-6 py-4 text-slate-500">{student.turno}</td>
                                         <td className="px-6 py-4">
-                                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs font-semibold">
+                                            <div className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold w-max border border-amber-100">
+                                                <ShieldCheck size={14} />
                                                 {student.familiares?.length || 0}
-                                            </span>
+                                            </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right flex justify-end gap-2">
-                                            {/* Nota: En una app real tendríamos una página separada o un modal anidado para familiares */}
-                                            <button onClick={() => openEdit(student)} className="p-2 text-slate-400 hover:text-blue-600 transition-colors" title="Editar / Familiares">
-                                                <Edit size={18} />
-                                            </button>
-                                            <button onClick={() => handleDelete(student.id)} className="p-2 text-slate-400 hover:text-red-600 transition-colors" title="Eliminar">
-                                                <Trash2 size={18} />
-                                            </button>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end gap-1">
+                                                <button onClick={() => openEdit(student)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Editar / Familiares">
+                                                    <Edit size={18} />
+                                                </button>
+                                                <button onClick={() => handleDelete(student.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                                    <Trash2 size={18} />
+                                                </button>
+                                            </div>
                                         </td>
                                     </tr>
                                 ))
@@ -159,82 +164,91 @@ const AlumnosPage = () => {
                                 ✕
                             </button>
                         </div>
-                        <form onSubmit={handleSave} className="p-6 space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
-                                    <input name="nombre" defaultValue={currentStudent?.nombre} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
+                        <form onSubmit={handleSave} className="p-6 space-y-6">
+                            <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/50">
+                                <div className="flex items-center gap-2 mb-4 text-indigo-800">
+                                    <GraduationCap size={20} className="text-indigo-600" />
+                                    <h4 className="font-bold">Datos del Estudiante</h4>
                                 </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Apellido</label>
-                                    <input name="apellido" defaultValue={currentStudent?.apellido} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">DNI</label>
-                                    <input type="number" name="dni" defaultValue={currentStudent?.dni} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Curso</label>
-                                    <input name="curso" defaultValue={currentStudent?.curso} required placeholder="Ej: 1ro, 2do" className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">División</label>
-                                    <input name="division" defaultValue={currentStudent?.division} required placeholder="Ej: A, B" className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Turno</label>
-                                    <select name="turno" defaultValue={currentStudent?.turno || 'Mañana'} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500">
-                                        <option value="Mañana">Mañana</option>
-                                        <option value="Tarde">Tarde</option>
-                                        <option value="Vespertino">Vespertino</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Hora Salida Habitual</label>
-                                    <input type="time" name="horaSalida" defaultValue={currentStudent?.horaSalida} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500" />
-                                </div>
-                                <div>
-                                    <label className="block text-sm font-medium text-slate-700 mb-1">Preceptor Asignado (Opcional)</label>
-                                    <select name="preceptor" defaultValue={currentStudent?.preceptor || ""} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                                        <option value="">Seleccione o autodetectar (Por Curso)</option>
-                                        {preceptoresDisponibles.map(p => (
-                                            <option key={p.id} value={p.id}>{p.apellido}, {p.nombre}</option>
-                                        ))}
-                                    </select>
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
+                                        <input name="nombre" defaultValue={currentStudent?.nombre} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Apellido</label>
+                                        <input name="apellido" defaultValue={currentStudent?.apellido} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">DNI</label>
+                                        <input type="number" name="dni" defaultValue={currentStudent?.dni} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Curso</label>
+                                        <input name="curso" defaultValue={currentStudent?.curso} required placeholder="Ej: 1ro, 2do" className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">División</label>
+                                        <input name="division" defaultValue={currentStudent?.division} required placeholder="Ej: A, B" className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Turno</label>
+                                        <select name="turno" defaultValue={currentStudent?.turno || 'Mañana'} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white">
+                                            <option value="Mañana">Mañana</option>
+                                            <option value="Tarde">Tarde</option>
+                                            <option value="Vespertino">Vespertino</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Hora Salida Habitual</label>
+                                        <input type="time" name="horaSalida" defaultValue={currentStudent?.horaSalida} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Preceptor Asignado (Opcional)</label>
+                                        <select name="preceptor" defaultValue={currentStudent?.preceptor || ""} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white">
+                                            <option value="">Seleccione o autodetectar (Por Curso)</option>
+                                            {preceptoresDisponibles.map(p => (
+                                                <option key={p.id} value={p.id}>{p.apellido}, {p.nombre}</option>
+                                            ))}
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
 
                             {/* Seccion de Familiares */}
-                            <div className="mt-6 pt-6 border-t border-slate-100">
-                                <h4 className="font-semibold text-slate-800 mb-4">Familiares Autorizados</h4>
+                            <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-200/50">
+                                <div className="flex items-center gap-2 mb-4 text-amber-900 border-b border-amber-200/50 pb-2">
+                                    <ShieldCheck size={20} className="text-amber-600" />
+                                    <h4 className="font-bold">Familiares Autorizados / Retiro</h4>
+                                </div>
 
                                 {/* Formulario para agregar familiar */}
-                                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 mb-4">
-                                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                <div className="bg-white p-4 rounded-xl border border-amber-200 mb-4 shadow-sm">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                                         <input
                                             placeholder="Nombre"
                                             value={newFamiliar.nombre}
                                             onChange={(e) => setNewFamiliar({ ...newFamiliar, nombre: e.target.value })}
-                                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition-colors"
                                         />
                                         <input
                                             placeholder="Apellido"
                                             value={newFamiliar.apellido}
                                             onChange={(e) => setNewFamiliar({ ...newFamiliar, apellido: e.target.value })}
-                                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition-colors"
                                         />
                                         <input
                                             placeholder="DNI"
                                             type="number"
                                             value={newFamiliar.dni}
                                             onChange={(e) => setNewFamiliar({ ...newFamiliar, dni: e.target.value })}
-                                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm transition-colors"
                                         />
-                                        <div className="flex gap-2">
+                                        <div className="flex gap-2 sm:col-span-2 lg:col-span-2">
                                             <select
                                                 value={newFamiliar.relacion}
                                                 onChange={(e) => setNewFamiliar({ ...newFamiliar, relacion: e.target.value })}
-                                                className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                                                className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-sm bg-white transition-colors"
                                             >
                                                 <option value="Madre">Madre</option>
                                                 <option value="Padre">Padre</option>
@@ -248,10 +262,10 @@ const AlumnosPage = () => {
                                                 type="button"
                                                 onClick={handleAddFamiliar}
                                                 disabled={!newFamiliar.nombre || !newFamiliar.dni}
-                                                className="bg-slate-800 text-white p-2 rounded-lg hover:bg-slate-900 disabled:opacity-50 transition-colors"
+                                                className="bg-amber-600 text-white px-4 py-2 rounded-lg hover:bg-amber-700 active:scale-95 disabled:opacity-50 transition-all shadow-sm font-medium flex items-center justify-center shrink-0"
                                                 title="Agregar Familiar"
                                             >
-                                                <UserPlus size={18} />
+                                                <UserPlus size={18} /> <span className="ml-1 hidden sm:inline lg:hidden xl:inline">Agregar</span>
                                             </button>
                                         </div>
                                     </div>
@@ -259,20 +273,30 @@ const AlumnosPage = () => {
 
                                 {/* Lista de familiares agregados */}
                                 {familiares.length === 0 ? (
-                                    <p className="text-sm text-slate-500 text-center py-2">No hay familiares autorizados agregados.</p>
+                                    <div className="flex flex-col items-center justify-center py-6 text-amber-700/60 bg-white/50 rounded-xl border border-dashed border-amber-200">
+                                        <User size={32} className="mb-2 opacity-50" />
+                                        <p className="text-sm">Agregue familiares autorizados arriba.</p>
+                                    </div>
                                 ) : (
-                                    <ul className="space-y-2">
+                                    <ul className="grid gap-2 grid-cols-1 sm:grid-cols-2">
                                         {familiares.map((fam, i) => (
-                                            <li key={i} className="flex justify-between items-center bg-white border border-slate-200 p-3 rounded-lg text-sm">
-                                                <div>
-                                                    <span className="font-semibold text-slate-800">{fam.nombre} {fam.apellido}</span>
-                                                    <span className="text-slate-500 ml-2">DNI: {fam.dni}</span>
-                                                    <span className="ml-3 bg-blue-50 text-blue-600 px-2 py-0.5 rounded text-xs font-medium">{fam.relacion}</span>
+                                            <li key={i} className="flex justify-between items-center bg-white border border-amber-200 p-3 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+                                                <div className="flex items-center gap-3 overflow-hidden">
+                                                    <div className="bg-amber-100 text-amber-700 p-2 rounded-full shrink-0">
+                                                        <User size={16} />
+                                                    </div>
+                                                    <div className="min-w-0">
+                                                        <p className="font-bold text-slate-800 text-sm truncate">{fam.nombre} {fam.apellido}</p>
+                                                        <p className="text-slate-500 text-xs flex gap-2 items-center">
+                                                            <span className="truncate">DNI: {fam.dni}</span>
+                                                            <span className="bg-amber-50 border border-amber-100 text-amber-700 px-1.5 py-0.5 rounded text-[10px] uppercase font-bold tracking-wide shrink-0">{fam.relacion}</span>
+                                                        </p>
+                                                    </div>
                                                 </div>
                                                 <button
                                                     type="button"
                                                     onClick={() => handleRemoveFamiliar(i)}
-                                                    className="text-red-400 hover:text-red-600 p-1"
+                                                    className="text-slate-300 hover:text-red-500 hover:bg-red-50 p-2 rounded-lg transition-colors shrink-0"
                                                 >
                                                     <X size={16} />
                                                 </button>
@@ -282,12 +306,12 @@ const AlumnosPage = () => {
                                 )}
                             </div>
 
-                            <div className="flex justify-end gap-3 pt-6">
-                                <button type="button" onClick={() => setIsModalOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg transition-colors">
+                            <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 w-full">
+                                <button type="button" onClick={() => setIsModalOpen(false)} className="w-full sm:w-auto px-6 py-2.5 text-slate-600 font-medium hover:bg-slate-100 rounded-xl transition-colors">
                                     Cancelar
                                 </button>
-                                <button type="submit" className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                                    Guardar
+                                <button type="submit" className="w-full sm:w-auto px-6 py-2.5 bg-indigo-600 text-white font-bold rounded-xl hover:bg-indigo-700 active:scale-95 hover:shadow-lg hover:-translate-y-0.5 transition-all shadow-md">
+                                    Guardar Alumno y Familiares
                                 </button>
                             </div>
                         </form>

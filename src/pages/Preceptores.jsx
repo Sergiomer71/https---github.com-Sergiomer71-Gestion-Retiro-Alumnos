@@ -116,7 +116,7 @@ const PreceptoresPage = () => {
                 </div>
                 <button
                     onClick={() => handleOpenForm()}
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-xl font-medium transition-colors shadow-sm flex items-center gap-2"
+                    className="bg-indigo-600 hover:bg-indigo-700 active:scale-95 text-white px-5 py-2.5 rounded-xl font-medium transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 flex items-center gap-2"
                 >
                     <Plus size={20} /> Nuevo Preceptor
                 </button>
@@ -252,9 +252,9 @@ const PreceptoresPage = () => {
                                     </div>
                                 </div>
                             </div>
-                            <div className="pt-4 flex gap-3 justify-end mt-4">
-                                <button type="button" onClick={() => setIsFormOpen(false)} className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-lg font-medium transition-colors">Cancelar</button>
-                                <button type="submit" className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors shadow-sm">Guardar Preceptor</button>
+                            <div className="pt-4 flex flex-col-reverse sm:flex-row gap-3 justify-end mt-4">
+                                <button type="button" onClick={() => setIsFormOpen(false)} className="px-6 py-2.5 text-slate-600 hover:bg-slate-100 rounded-xl font-medium transition-colors w-full sm:w-auto">Cancelar</button>
+                                <button type="submit" className="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-bold transition-all duration-200 shadow-md hover:shadow-lg hover:-translate-y-0.5 active:scale-95 active:translate-y-0 w-full sm:w-auto">Guardar Preceptor</button>
                             </div>
                         </form>
                     </div>

@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../core/AuthContext';
-import { UserCheck } from 'lucide-react';
+import { UserCheck, Download } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 
 const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [deferredPrompt, setDeferredPrompt] = useState(null);
     const { login, user, isAdmin } = useAuth();
     const navigate = useNavigate();
 
@@ -22,6 +23,31 @@ const Login = () => {
             setError(result.message);
         } else {
             navigate(result.role === 'ADMIN' ? "/" : "/registro-retiro");
+        }
+    };
+
+    useEffect(() => {
+        const handler = (e) => {
+            // Previene el mini-infobar por defecto en Chrome móvil
+            e.preventDefault();
+            // Guarda el evento para que pueda ser disparado más tarde
+            setDeferredPrompt(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+
+        // Limpieza de Listener 
+        return () => window.removeEventListener('beforeinstallprompt', handler);
+    }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        // Muestra el prompt real nativo
+        deferredPrompt.prompt();
+        // Espera a que el usuario decida instalar o no
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            console.log('App instalada');
+            setDeferredPrompt(null);
         }
     };
 
@@ -68,10 +94,20 @@ const Login = () => {
 
                     <button
                         type="submit"
-                        className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+                        className="w-full flex justify-center py-2.5 px-4 rounded-lg shadow-sm text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all hover:shadow-md active:scale-95"
                     >
                         Iniciar Sesión
                     </button>
+                    
+                    {deferredPrompt && (
+                        <button
+                            type="button"
+                            onClick={handleInstallClick}
+                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg shadow-sm text-sm font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all hover:shadow-md animate-bounce mt-2"
+                        >
+                            <Download size={18} /> Instalar la App en este Dispositivo
+                        </button>
+                    )}
                 </form>
                 <div className="mt-6 text-center text-xs text-slate-400">
                     <p>Credenciales por defecto (Pass: 123):<br />Admin: <strong>admin</strong> | Celador: <strong>celador</strong></p>

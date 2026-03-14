@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import StorageService from '../storage/localStorage';
 import { STORAGE_KEYS } from '../config/constants';
-import { Search, UserCheck, Clock, UserMinus, Users } from 'lucide-react';
+import { Search, UserCheck, Clock, UserMinus, Users, GraduationCap, ShieldCheck } from 'lucide-react';
 
 const RegistroRetiroPage = () => {
     const [searchTerm, setSearchTerm] = useState('');
@@ -138,27 +138,35 @@ const RegistroRetiroPage = () => {
 
                     {/* Resultados */}
                     {searchTerm && (
-                        <div className="mt-4 bg-slate-50 rounded-xl border border-slate-100 max-h-96 overflow-y-auto divide-y divide-slate-100">
+                        <div className="mt-4 bg-white rounded-xl border border-slate-100 max-h-96 overflow-y-auto divide-y divide-slate-100 shadow-inner">
                             {isSearching ? (
-                                <div className="p-4 text-center text-slate-500">Buscando...</div>
+                                <div className="p-8 text-center text-slate-500 flex flex-col items-center">
+                                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600 mb-2"></div>
+                                    Buscando...
+                                </div>
                             ) : results.length === 0 ? (
-                                <div className="p-4 text-center text-slate-500">No se encontraron alumnos coincidentes.</div>
+                                <div className="p-8 text-center text-slate-500">No se encontraron alumnos coincidentes.</div>
                             ) : (
                                 results.map(student => (
                                     <button
                                         key={student.id}
-                                        className="w-full flex items-center justify-between p-4 hover:bg-blue-50 focus:bg-blue-50 outline-none transition-colors text-left"
+                                        className="w-full flex items-center justify-between p-4 hover:bg-indigo-50/50 focus:bg-indigo-50 focus:ring-2 focus:ring-inset focus:ring-indigo-500 outline-none transition-all text-left group"
                                         onClick={() => handleSelectStudent(student)}
                                     >
-                                        <div>
-                                            <p className="font-bold text-slate-800 text-lg">{student.apellido}, {student.nombre}</p>
-                                            <p className="text-sm text-slate-500 flex items-center gap-2 mt-1">
-                                                DNI: {student.dni} <span className="text-slate-300">|</span>
-                                                Curso: {student.curso} "{student.division}"
-                                            </p>
+                                        <div className="flex items-center gap-3">
+                                            <div className="bg-indigo-100 text-indigo-600 p-2.5 rounded-xl group-hover:scale-110 transition-transform">
+                                                <GraduationCap size={20} />
+                                            </div>
+                                            <div>
+                                                <p className="font-bold text-slate-800 text-lg group-hover:text-indigo-900 transition-colors">{student.apellido}, {student.nombre}</p>
+                                                <p className="text-sm text-slate-500 flex items-center gap-2 mt-0.5">
+                                                    DNI: {student.dni} <span className="text-slate-300">|</span>
+                                                    Curso: {student.curso} "{student.division}"
+                                                </p>
+                                            </div>
                                         </div>
-                                        <div className="bg-white px-3 py-1 rounded-full shadow-sm border border-slate-200 text-xs font-semibold text-slate-600 flex items-center gap-1">
-                                            <Users size={12} className="text-blue-500" />
+                                        <div className="bg-amber-50 px-3 py-1.5 rounded-full shadow-sm border border-amber-100 text-xs font-bold text-amber-700 flex items-center gap-1.5 shrink-0 group-hover:bg-amber-100 transition-colors">
+                                            <ShieldCheck size={14} className="text-amber-600" />
                                             {student.familiares?.length || 0} fam.
                                         </div>
                                     </button>
@@ -171,34 +179,43 @@ const RegistroRetiroPage = () => {
 
             {/* Formulario de Retiro (Al seleccionar alumno) */}
             {selectedStudent && (
-                <div className="bg-white rounded-2xl shadow-xl shadow-blue-900/5 border border-slate-100 overflow-hidden animate-in slide-in-from-bottom-4 duration-300">
-                    <div className="bg-blue-600 p-6 text-white flex justify-between items-start">
-                        <div>
-                            <h2 className="text-2xl font-bold">{selectedStudent.apellido}, {selectedStudent.nombre}</h2>
-                            <div className="flex gap-4 mt-2 text-blue-100 text-sm">
-                                <span>DNI: {selectedStudent.dni}</span>
-                                <span>Curso: {selectedStudent.curso} "{selectedStudent.division}"</span>
-                                <span>Turno: {selectedStudent.turno}</span>
+                <div className="bg-white rounded-3xl shadow-2xl shadow-indigo-900/10 border border-slate-100 overflow-hidden animate-in slide-in-from-bottom-4 zoom-in-95 duration-400">
+                    <div className="bg-gradient-to-r from-indigo-700 to-blue-600 p-6 sm:p-8 text-white flex flex-col sm:flex-row justify-between items-start gap-4 sm:gap-0">
+                        <div className="flex items-start gap-4">
+                            <div className="bg-white/20 p-3 rounded-2xl backdrop-blur-sm hidden sm:block shadow-inner">
+                                <GraduationCap size={32} className="text-white" />
                             </div>
-                            {preceptorAsignado ? (
-                                <div className="mt-4 bg-blue-800/50 text-blue-50 px-3 py-2.5 rounded-lg text-sm border border-blue-400/30 flex items-center gap-2 w-max">
-                                    <UserCheck size={16} /> Preceptor Asignado: <span className="font-bold">{preceptorAsignado.nombre} {preceptorAsignado.apellido}</span>
+                            <div>
+                                <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">{selectedStudent.apellido}, {selectedStudent.nombre}</h2>
+                                <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 text-indigo-100 text-sm font-medium">
+                                    <span className="bg-indigo-800/50 px-2.5 py-1 rounded-lg border border-indigo-500/30">DNI: {selectedStudent.dni}</span>
+                                    <span className="bg-indigo-800/50 px-2.5 py-1 rounded-lg border border-indigo-500/30">Curso: {selectedStudent.curso} "{selectedStudent.division}"</span>
+                                    <span className="bg-indigo-800/50 px-2.5 py-1 rounded-lg border border-indigo-500/30">Turno: {selectedStudent.turno}</span>
                                 </div>
-                            ) : (
-                                <div className="mt-4 bg-blue-800/50 text-blue-200 px-3 py-2.5 rounded-lg text-sm border border-blue-400/30 flex items-center gap-2 w-max opacity-80">
-                                    <UserCheck size={16} /> Sin preceptor asignado
-                                </div>
-                            )}
+                            </div>
                         </div>
                         <button
                             onClick={() => setSelectedStudent(null)}
-                            className="text-blue-200 hover:text-white bg-blue-700/50 hover:bg-blue-700 px-3 py-1 rounded-lg transition-colors text-sm font-medium"
+                            className="text-indigo-200 hover:text-white bg-indigo-900/40 hover:bg-indigo-900/80 px-4 py-2 rounded-xl transition-all shadow-sm active:scale-95 text-sm font-bold flex items-center gap-2 border border-indigo-400/20 w-full sm:w-auto justify-center"
                         >
-                            Cambiar Alumno
+                            Cambiar Estudiante
                         </button>
                     </div>
 
-                    <form onSubmit={handleRegistrar} className="p-6 space-y-6">
+                    <form onSubmit={handleRegistrar} className="p-6 sm:p-8 space-y-8">
+                        {preceptorAsignado ? (
+                            <div className="bg-blue-50 text-blue-800 px-4 py-3 rounded-xl text-sm border border-blue-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2 shadow-sm">
+                                <span className="flex items-center gap-2 font-medium">
+                                    <UserCheck size={18} className="text-blue-600" /> 
+                                    Preceptor Asignado
+                                </span>
+                                <span className="font-bold text-base bg-white px-3 py-1 rounded-lg shadow-sm">{preceptorAsignado.nombre} {preceptorAsignado.apellido}</span>
+                            </div>
+                        ) : (
+                            <div className="bg-slate-50 text-slate-500 px-4 py-3 rounded-xl text-sm border border-slate-200 flex items-center gap-2">
+                                <UserCheck size={18} /> Sin preceptor asociado para el curso actual.
+                            </div>
+                        )}
                         <div className="bg-orange-50 border border-orange-100 rounded-xl p-4 flex gap-3 items-start">
                             <Clock className="w-5 h-5 text-orange-500 shrink-0 mt-0.5" />
                             <div>
@@ -212,27 +229,49 @@ const RegistroRetiroPage = () => {
 
                         <div className="space-y-4">
                             <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Persona Autorizada que Retira</label>
+                                <label className="flex items-center gap-2 text-sm font-bold text-slate-800 mb-3 uppercase tracking-wide">
+                                    <ShieldCheck className="text-amber-500" size={18} />
+                                    Seleccionar Adulto que Retira
+                                </label>
                                 {(!selectedStudent.familiares || selectedStudent.familiares.length === 0) ? (
-                                    <div className="bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 flex items-center gap-2">
-                                        <UserMinus size={20} />
-                                        <span className="font-medium">Este alumno no tiene familiares autorizados cargados.</span>
+                                    <div className="bg-red-50 text-red-600 p-5 rounded-2xl border border-red-200 flex flex-col sm:flex-row items-center gap-3 text-center sm:text-left shadow-sm">
+                                        <div className="bg-red-100 p-3 rounded-full shrink-0">
+                                            <UserMinus size={24} />
+                                        </div>
+                                        <div>
+                                            <span className="font-bold block text-lg">Sin Familiares Autorizados</span>
+                                            <span className="text-sm opacity-90 block mt-1">Este estudiante no tiene personas autorizadas cargadas en el sistema. El retiro requiere autorización superior.</span>
+                                        </div>
                                     </div>
                                 ) : (
-                                    <div className="grid gap-3">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                                         {selectedStudent.familiares.map((fam, idx) => (
-                                            <label key={idx} className={`flex items-center p-4 border-2 rounded-xl cursor-pointer transition-all ${adultoId === fam.dni ? 'border-blue-500 bg-blue-50' : 'border-slate-200 hover:border-blue-300'}`}>
-                                                <input
-                                                    type="radio"
-                                                    name="adulto"
-                                                    value={fam.dni}
-                                                    checked={adultoId === fam.dni}
-                                                    onChange={(e) => setAdultoId(e.target.value)}
-                                                    className="w-5 h-5 text-blue-600 border-gray-300 focus:ring-blue-500 shrink-0"
-                                                />
-                                                <div className="ml-3">
-                                                    <p className="font-bold text-slate-800">{fam.nombre} {fam.apellido} <span className="text-slate-400 font-normal text-sm ml-2">({fam.relacion})</span></p>
-                                                    <p className="text-sm text-slate-500">DNI: {fam.dni}</p>
+                                            <label 
+                                                key={idx} 
+                                                className={`flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition-all duration-200 shadow-sm relative overflow-hidden group hover:shadow-md ${adultoId === fam.dni ? 'border-amber-500 bg-amber-50/50 ring-4 ring-amber-500/10' : 'border-slate-200 hover:border-amber-300 bg-white'}`}
+                                            >
+                                                {/* Indicador visual activo (el check azul) lo ocultamos por css, usamos el border */}
+                                                <div className="flex items-start justify-between mb-2">
+                                                    <div className={`p-2 rounded-xl transition-colors ${adultoId === fam.dni ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400 group-hover:text-amber-500 group-hover:bg-amber-50'}`}>
+                                                        <ShieldCheck size={20} />
+                                                    </div>
+                                                    <input
+                                                        type="radio"
+                                                        name="adulto"
+                                                        value={fam.dni}
+                                                        checked={adultoId === fam.dni}
+                                                        onChange={(e) => setAdultoId(e.target.value)}
+                                                        className="w-5 h-5 text-amber-600 border-gray-300 focus:ring-amber-500 mt-1 cursor-pointer"
+                                                    />
+                                                </div>
+                                                <div className="mt-auto pt-2">
+                                                    <p className="font-bold text-slate-800 leading-tight">{fam.nombre} {fam.apellido}</p>
+                                                    <div className="flex items-center gap-2 mt-1.5">
+                                                        <span className="text-xs font-medium text-slate-500">DNI {fam.dni}</span>
+                                                        <span className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${adultoId === fam.dni ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 text-slate-500'}`}>
+                                                            {fam.relacion}
+                                                        </span>
+                                                    </div>
                                                 </div>
                                             </label>
                                         ))}
@@ -240,12 +279,12 @@ const RegistroRetiroPage = () => {
                                 )}
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-bold text-slate-700 mb-2">Motivo del Retiro</label>
+                            <div className="pt-4">
+                                <label className="block text-sm font-bold text-slate-800 mb-3 uppercase tracking-wide">Motivo del Retiro</label>
                                 <select
                                     value={motivo}
                                     onChange={(e) => setMotivo(e.target.value)}
-                                    className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-blue-500 focus:ring-4 focus:ring-blue-500/10 transition-all font-medium text-slate-700 bg-white"
+                                    className="w-full sm:w-1/2 border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700 bg-white shadow-sm"
                                 >
                                     <option value="Enfermedad">Enfermedad</option>
                                     <option value="Cita Médica">Cita Médica</option>
@@ -257,13 +296,13 @@ const RegistroRetiroPage = () => {
                             </div>
                         </div>
 
-                        <div className="pt-4 mt-6 border-t border-slate-100 flex justify-end">
+                        <div className="pt-6 mt-8 border-t border-slate-100 flex justify-end">
                             <button
                                 type="submit"
                                 disabled={!adultoId}
-                                className={`flex items-center gap-2 px-8 py-4 rounded-xl font-bold text-lg transition-all ${adultoId ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-lg shadow-blue-600/30' : 'bg-slate-200 text-slate-400 cursor-not-allowed'}`}
+                                className={`flex items-center justify-center w-full sm:w-auto gap-3 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${adultoId ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-xl shadow-amber-500/30 hover:-translate-y-1 active:translate-y-0 active:scale-95' : 'bg-slate-100 text-slate-400 cursor-not-allowed border-2 border-slate-200'}`}
                             >
-                                <UserCheck size={24} /> Registrar Retiro
+                                <UserCheck size={24} /> {adultoId ? "Confirmar Retiro" : "Seleccione Adulto Primero"}
                             </button>
                         </div>
                     </form>
