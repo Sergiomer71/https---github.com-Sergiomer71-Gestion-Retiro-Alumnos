@@ -1,8 +1,8 @@
-const CACHE_NAME = 'retiros-v2';
+const CACHE_NAME = 'retiros-v12';
 const ASSETS_TO_CACHE = [
   '/',
   '/index.html',
-  '/manifest.json',
+  '/app.webmanifest',
   '/icon.png',
   '/favicon.svg'
 ];

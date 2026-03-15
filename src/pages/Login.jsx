@@ -27,16 +27,30 @@ const Login = () => {
     };
 
     useEffect(() => {
+        // 1. Revisar si el evento ya fue capturado en index.html
+        if (window.deferredInstallPrompt) {
+            setDeferredPrompt(window.deferredInstallPrompt);
+        }
+
+        // 2. Escuchar si el evento ocurre después de montar
         const handler = (e) => {
-            // Previene el mini-infobar por defecto en Chrome móvil
             e.preventDefault();
-            // Guarda el evento para que pueda ser disparado más tarde
             setDeferredPrompt(e);
         };
         window.addEventListener('beforeinstallprompt', handler);
 
-        // Limpieza de Listener 
-        return () => window.removeEventListener('beforeinstallprompt', handler);
+        // 3. Escuchar nuestra notificación personalizada
+        const customHandler = () => {
+            if (window.deferredInstallPrompt) {
+                setDeferredPrompt(window.deferredInstallPrompt);
+            }
+        };
+        window.addEventListener('pwa-installable', customHandler);
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handler);
+            window.removeEventListener('pwa-installable', customHandler);
+        };
     }, []);
 
     const handleInstallClick = async () => {
@@ -100,17 +114,14 @@ const Login = () => {
                     </button>
                     
                     {deferredPrompt && (
-                        <div className="pt-4 border-t border-slate-100 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-700">
-                             <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">¿Prefieres usar la aplicación?</p>
+                        <div className="pt-6 border-t border-slate-100 mt-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                              <button
                                 type="button"
                                 onClick={handleInstallClick}
-                                className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl shadow-xl text-base font-black text-indigo-700 bg-indigo-50 border-2 border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 hover:-translate-y-1 transition-all duration-300 active:scale-95 group"
+                                className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-xl shadow-lg shadow-emerald-900/20 text-base font-bold text-white bg-emerald-800 hover:bg-emerald-900 transition-all duration-300 active:scale-95 uppercase tracking-wide group"
                             >
-                                <div className="p-2 bg-indigo-600 text-white rounded-xl shadow-lg group-hover:scale-110 transition-transform">
-                                    <Download size={20} /> 
-                                </div>
-                                Instalar Aplicación Nativa
+                                <Download size={22} className="group-hover:translate-y-0.5 transition-transform" /> 
+                                INSTALAR APLICACIÓN (DESKTOP/MÓVIL)
                             </button>
                         </div>
                     )}

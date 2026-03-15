@@ -9,7 +9,7 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       injectRegister: false, // Lo hacemos manual en index.html
-      manifest: false, // Usamos public/manifest.json
+      manifest: false, // Usamos public/app.webmanifest
       devOptions: {
         enabled: true
       }
