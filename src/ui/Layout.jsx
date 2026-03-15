@@ -2,19 +2,53 @@ import React from 'react';
 import { Outlet, Navigate, NavLink } from 'react-router-dom';
 import { useAuth } from '../core/AuthContext';
 import StorageService from '../storage/localStorage';
-import { LogOut, LayoutDashboard, Users, UserCheck, Settings, FileText, Calendar, Upload, Image as ImageIcon } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, UserCheck, Settings, FileText, Calendar, Upload, Image as ImageIcon, Download } from 'lucide-react';
 
 const Layout = () => {
     const { user, logout, isAdmin } = useAuth();
 
     const [logoPreview, setLogoPreview] = React.useState(null);
     const fileInputRef = React.useRef(null);
+    const [deferredPrompt, setDeferredPrompt] = React.useState(null);
 
     React.useEffect(() => {
         // Cargar logo guardado si existe
         const savedLogo = StorageService.get('SCHOOL_LOGO_BASE64');
         if (savedLogo) setLogoPreview(savedLogo);
+
+        // PWA Install logic
+        if (window.deferredInstallPrompt) {
+            setDeferredPrompt(window.deferredInstallPrompt);
+        }
+
+        const handler = (e) => {
+            e.preventDefault();
+            setDeferredPrompt(e);
+        };
+        window.addEventListener('beforeinstallprompt', handler);
+
+        const customHandler = () => {
+            if (window.deferredInstallPrompt) {
+                setDeferredPrompt(window.deferredInstallPrompt);
+            }
+        };
+        window.addEventListener('pwa-installable', customHandler);
+
+        return () => {
+            window.removeEventListener('beforeinstallprompt', handler);
+            window.removeEventListener('pwa-installable', customHandler);
+        };
     }, []);
+
+    const handleInstallClick = async () => {
+        if (!deferredPrompt) return;
+        deferredPrompt.prompt();
+        const { outcome } = await deferredPrompt.userChoice;
+        if (outcome === 'accepted') {
+            setDeferredPrompt(null);
+            window.deferredInstallPrompt = null;
+        }
+    };
 
     const handleLogoUpload = (e) => {
         const file = e.target.files?.[0];
@@ -126,10 +160,18 @@ const Layout = () => {
                     )}
                 </nav>
 
-                <div className="p-4">
+                <div className="p-4 space-y-2">
+                    {deferredPrompt && (
+                        <button
+                            onClick={handleInstallClick}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-lg shadow-emerald-900/20 active:scale-95 group font-black text-xs uppercase tracking-wider"
+                        >
+                            <Download size={18} /> Instalar Aplicación
+                        </button>
+                    )}
                     <button
                         onClick={logout}
-                        className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors"
+                        className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl transition-colors font-semibold"
                     >
                         <LogOut size={18} /> Cerrar Sesión
                     </button>

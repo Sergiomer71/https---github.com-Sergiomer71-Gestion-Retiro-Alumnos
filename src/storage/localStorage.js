@@ -126,6 +126,28 @@ const StorageService = {
             console.error('Invalid JSON for import', err);
             throw new Error('El archivo importado no es un JSON válido o la estructura no es compatible.');
         }
+    },
+
+    /**
+     * Eliminar todos los datos del sistema (excepto usuarios por defecto)
+     */
+    clearAllData() {
+        try {
+            localStorage.removeItem(STORAGE_KEYS.STUDENTS);
+            localStorage.removeItem(STORAGE_KEYS.WITHDRAWALS);
+            localStorage.removeItem(STORAGE_KEYS.PRECEPTORS);
+            localStorage.removeItem(STORAGE_KEYS.SETTINGS);
+            
+            // Reiniciar usuarios a los de fábrica
+            this.set(STORAGE_KEYS.USERS, [DEFAULT_ADMIN, DEFAULT_CELADOR]);
+            
+            // Re-inicializar estructuras vacías
+            this.init();
+            return true;
+        } catch (error) {
+            console.error('Error clearing data:', error);
+            throw new Error('No se pudieron eliminar todos los datos de forma segura.');
+        }
     }
 };
 

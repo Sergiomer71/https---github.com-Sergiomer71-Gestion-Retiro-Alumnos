@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import StorageService from '../storage/localStorage';
 import { STORAGE_KEYS } from '../config/constants';
-import { Database, Download, Upload, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { Database, Download, Upload, AlertTriangle, CheckCircle2, Trash2, ShieldAlert } from 'lucide-react';
 
 const ConfiguracionPage = () => {
     const [importStatus, setImportStatus] = useState(null);
@@ -21,6 +21,23 @@ const ConfiguracionPage = () => {
             URL.revokeObjectURL(url);
         } catch (err) {
             alert('Error en la exportación: ' + err.message);
+        }
+    };
+
+    const handleResetAll = () => {
+        const confirm1 = confirm('¡ADVERTENCIA CRÍTICA! Esta acción eliminará permanentemente todos los alumnos, preceptores e historial de retiros.\n\n¿Está COMPLETAMENTE seguro?');
+        if (!confirm1) return;
+
+        const confirm2 = confirm('¿CONFIRMA ELIMINAR TODO? Esta acción es irreversible y el sistema volverá a su estado inicial.');
+        if (!confirm2) return;
+
+        try {
+            StorageService.clearAllData();
+            setImportStatus({ type: 'success', msg: 'Todos los datos han sido eliminados correctamente. El sistema se ha reiniciado.' });
+            // Forzar recarga tras un breve delay para que vean el mensaje
+            setTimeout(() => window.location.reload(), 2000);
+        } catch (err) {
+            setImportStatus({ type: 'error', msg: err.message });
         }
     };
 
@@ -108,6 +125,34 @@ const ConfiguracionPage = () => {
                     </div>
                 </div>
 
+            </div>
+
+            {/* Zona de Peligro / Mantenimiento */}
+            <div className="mt-12 pt-8 border-t border-red-100">
+                <div className="bg-red-50/50 rounded-2xl border border-red-100 p-8">
+                    <div className="flex items-center gap-3 text-red-700 mb-4">
+                        <ShieldAlert size={28} />
+                        <h2 className="text-xl font-black uppercase tracking-tight">Zona de Mantenimiento Crítico</h2>
+                    </div>
+                    
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+                        <div className="flex-1">
+                            <p className="text-red-900 font-bold text-lg">Eliminación Total de Datos</p>
+                            <p className="text-red-700/80 text-sm mt-1">
+                                Esta acción vaciará completamente la base de datos (Alumnos, Preceptores, Retiros y Ajustes). 
+                                Los usuarios administradores y celadores volverán a sus contraseñas por defecto.
+                            </p>
+                        </div>
+                        
+                        <button
+                            onClick={handleResetAll}
+                            className="shrink-0 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-black py-4 px-8 rounded-xl transition-all shadow-lg shadow-red-200 active:scale-95 group"
+                        >
+                            <Trash2 size={20} className="group-hover:rotate-12 transition-transform" />
+                            ELIMINAR TODO
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     );
