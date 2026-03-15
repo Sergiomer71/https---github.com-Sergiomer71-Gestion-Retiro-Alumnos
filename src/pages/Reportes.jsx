@@ -10,6 +10,7 @@ const ReportesPage = () => {
     const generateAlumnosReport = () => {
         const doc = new jsPDF();
         const students = StorageService.get(STORAGE_KEYS.STUDENTS, []);
+        const preceptores = StorageService.get(STORAGE_KEYS.PRECEPTORS, []);
 
         // Título
         doc.setFontSize(18);
@@ -26,14 +27,39 @@ const ReportesPage = () => {
             return c1.localeCompare(c2);
         });
 
-        const tableData = sortedStudents.map(s => [
-            `${s.curso} "${s.division}"`,
-            s.turno,
-            `${s.apellido}, ${s.nombre}`,
-            s.dni,
-            s.preceptor || 'No Asignado',
-            s.familiares ? s.familiares.length.toString() : '0'
-        ]);
+        const tableData = sortedStudents.map(s => {
+            // Resolver Preceptor
+            let preceptorName = 'No Asignado';
+            
+            // 1. Prioridad: ID explícito
+            let preceptorObj = null;
+            if (s.preceptor) {
+                preceptorObj = preceptores.find(p => p.id === s.preceptor);
+            }
+            
+            // 2. Fallback: Búsqueda por curso/division
+            if (!preceptorObj) {
+                preceptorObj = preceptores.find(p => {
+                    if (p.cursos && p.cursos.length > 0) {
+                        return p.cursos.some(c => c.curso === s.curso && c.division === s.division);
+                    }
+                    return p.curso === s.curso && p.division === s.division;
+                });
+            }
+
+            if (preceptorObj) {
+                preceptorName = `${preceptorObj.apellido}, ${preceptorObj.nombre}`;
+            }
+
+            return [
+                `${s.curso} "${s.division}"`,
+                s.turno,
+                `${s.apellido}, ${s.nombre}`,
+                s.dni,
+                preceptorName,
+                s.familiares ? s.familiares.length.toString() : '0'
+            ];
+        });
 
         autoTable(doc, {
             startY: 38,

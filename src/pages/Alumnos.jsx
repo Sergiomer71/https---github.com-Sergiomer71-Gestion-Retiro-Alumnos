@@ -119,28 +119,39 @@ const AlumnosPage = () => {
                                 </tr>
                             ) : (
                                 students.map(student => (
-                                    <tr key={student.id} className="hover:bg-slate-50 transition-colors">
-                                        <td className="px-6 py-4 font-medium text-slate-800 flex items-center gap-2">
-                                            <div className="p-1.5 bg-indigo-50 text-indigo-600 rounded-lg">
-                                                <GraduationCap size={16} />
-                                            </div>
-                                            {student.apellido}, {student.nombre}
-                                        </td>
-                                        <td className="px-6 py-4 text-slate-500">{student.dni}</td>
-                                        <td className="px-6 py-4"><span className="font-medium text-slate-700">{student.curso} "{student.division}"</span></td>
-                                        <td className="px-6 py-4 text-slate-500">{student.turno}</td>
-                                        <td className="px-6 py-4">
-                                            <div className="flex items-center gap-1.5 bg-amber-50 text-amber-700 px-2.5 py-1 rounded-full text-xs font-bold w-max border border-amber-100">
-                                                <ShieldCheck size={14} />
-                                                {student.familiares?.length || 0}
+                                    <tr key={student.id} className="hover:bg-indigo-50/30 transition-all duration-200 border-l-4 border-transparent hover:border-indigo-500 group">
+                                        <td className="px-6 py-5 font-medium text-slate-800">
+                                            <div className="flex items-center gap-3">
+                                                <div className="p-2.5 bg-indigo-100 text-indigo-700 rounded-xl group-hover:scale-110 transition-transform shadow-sm">
+                                                    <GraduationCap size={18} />
+                                                </div>
+                                                <div>
+                                                    <p className="font-bold text-slate-900 leading-none">{student.apellido}, {student.nombre}</p>
+                                                    <p className="text-[10px] text-indigo-500 font-black uppercase tracking-widest mt-1">Estudiante</p>
+                                                </div>
                                             </div>
                                         </td>
-                                        <td className="px-6 py-4 text-right">
-                                            <div className="flex justify-end gap-1">
-                                                <button onClick={() => openEdit(student)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors" title="Editar / Familiares">
+                                        <td className="px-6 py-5 text-slate-500 font-medium">{student.dni}</td>
+                                        <td className="px-6 py-5">
+                                            <div className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 px-2 py-1 rounded-lg text-xs font-bold border border-slate-200">
+                                                {student.curso} "{student.division}"
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <span className="text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">{student.turno}</span>
+                                        </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-black w-max border-2 border-amber-100/50 shadow-sm animate-pulse-subtle">
+                                                <ShieldCheck size={16} className="text-amber-600" />
+                                                {student.familiares?.length || 0} AUTORIZADOS
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-5 text-right">
+                                            <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <button onClick={() => openEdit(student)} className="p-2 text-indigo-600 hover:bg-indigo-100 bg-indigo-50 rounded-xl transition-all active:scale-95 shadow-sm" title="Editar / Familiares">
                                                     <Edit size={18} />
                                                 </button>
-                                                <button onClick={() => handleDelete(student.id)} className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Eliminar">
+                                                <button onClick={() => handleDelete(student.id)} className="p-2 text-red-600 hover:bg-red-100 bg-red-50 rounded-xl transition-all active:scale-95 shadow-sm" title="Eliminar">
                                                     <Trash2 size={18} />
                                                 </button>
                                             </div>

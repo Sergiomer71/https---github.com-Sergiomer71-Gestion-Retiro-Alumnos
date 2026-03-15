@@ -100,13 +100,19 @@ const Login = () => {
                     </button>
                     
                     {deferredPrompt && (
-                        <button
-                            type="button"
-                            onClick={handleInstallClick}
-                            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-lg shadow-sm text-sm font-bold text-amber-900 bg-amber-200 hover:bg-amber-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-all hover:shadow-md animate-bounce mt-2"
-                        >
-                            <Download size={18} /> Instalar la App en este Dispositivo
-                        </button>
+                        <div className="pt-4 border-t border-slate-100 flex flex-col gap-3 animate-in fade-in slide-in-from-bottom-2 duration-700">
+                             <p className="text-center text-xs font-bold text-slate-400 uppercase tracking-widest">¿Prefieres usar la aplicación?</p>
+                             <button
+                                type="button"
+                                onClick={handleInstallClick}
+                                className="w-full flex items-center justify-center gap-3 py-4 px-6 rounded-2xl shadow-xl text-base font-black text-indigo-700 bg-indigo-50 border-2 border-indigo-200 hover:bg-indigo-100 hover:border-indigo-300 hover:-translate-y-1 transition-all duration-300 active:scale-95 group"
+                            >
+                                <div className="p-2 bg-indigo-600 text-white rounded-xl shadow-lg group-hover:scale-110 transition-transform">
+                                    <Download size={20} /> 
+                                </div>
+                                Instalar Aplicación Nativa
+                            </button>
+                        </div>
                     )}
                 </form>
                 <div className="mt-6 text-center text-xs text-slate-400">

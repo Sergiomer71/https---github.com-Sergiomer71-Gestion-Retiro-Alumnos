@@ -42,8 +42,8 @@ const Layout = () => {
     return (
         <div className="flex h-screen overflow-hidden bg-slate-50">
             {/* Menú Lateral */}
-            <aside className="w-64 bg-slate-900 text-slate-100 flex flex-col transition-all duration-300">
-                <div className="p-6 border-b border-slate-800">
+            <aside className="w-72 bg-slate-950 text-slate-100 flex flex-col transition-all duration-500 shadow-2xl z-20">
+                <div className="p-8 border-b border-slate-800/50 bg-slate-900/40 backdrop-blur-md">
                     <div className="flex items-center gap-3 mb-2">
                         {/* Logo o Icono por defecto */}
                         <div className="relative group w-12 h-12 flex-shrink-0 bg-slate-800 rounded-xl flex items-center justify-center overflow-hidden border border-slate-700">
@@ -79,35 +79,48 @@ const Layout = () => {
                     <p className="text-sm text-slate-400 mt-2 truncate px-1 bg-slate-800/50 rounded inline-block text-xs uppercase tracking-wide font-medium">Rol: {user.role}</p>
                 </div>
 
-                <nav className="flex-1 px-4 space-y-2 overflow-y-auto">
+                <nav className="flex-1 px-4 py-6 space-y-1.5 overflow-y-auto custom-scrollbar">
                     {isAdmin && (
-                        <NavLink to="/" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
-                            <LayoutDashboard size={20} /> Dashboard
+                        <NavLink to="/" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:bg-slate-800/50 text-slate-400 hover:text-slate-100'}`}>
+                            <LayoutDashboard size={20} className="group-hover:text-indigo-400 transition-colors" /> 
+                            <span className="font-semibold tracking-wide">Dashboard</span>
                         </NavLink>
                     )}
 
                     {!isAdmin && (
-                        <NavLink to="/registro-retiro" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
-                            <UserCheck size={20} /> Registrar Retiro
+                        <NavLink to="/registro-retiro" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:bg-slate-800/50 text-slate-400 hover:text-slate-100'}`}>
+                            <UserCheck size={20} className="group-hover:text-indigo-400 transition-colors" /> 
+                            <span className="font-semibold tracking-wide">Registrar Retiro</span>
                         </NavLink>
                     )}
 
                     {isAdmin && (
                         <>
-                            <NavLink to="/alumnos" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
-                                <Users size={20} /> Alumnos y Familiares
+                            <div className="pt-4 pb-2 px-4">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Administración</span>
+                            </div>
+                            <NavLink to="/alumnos" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:bg-slate-800/50 text-slate-400 hover:text-slate-100'}`}>
+                                <Users size={20} /> <span className="font-semibold tracking-wide">Alumnos</span>
                             </NavLink>
-                            <NavLink to="/preceptores" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
-                                <UserCheck size={20} /> Preceptores
+                            <NavLink to="/preceptores" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-indigo-600 text-white shadow-lg shadow-indigo-600/30' : 'hover:bg-slate-800/50 text-slate-400 hover:text-slate-100'}`}>
+                                <UserCheck size={20} /> <span className="font-semibold tracking-wide">Preceptores</span>
                             </NavLink>
-                            <NavLink to="/historial-retiros" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-orange-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
-                                <Calendar size={20} /> Historial de Retiros
+                            
+                            <div className="pt-4 pb-2 px-4">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Reportes</span>
+                            </div>
+                            <NavLink to="/historial-retiros" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-amber-600 text-white shadow-lg shadow-amber-600/30' : 'hover:bg-slate-800/50 text-slate-400 hover:text-slate-100'}`}>
+                                <Calendar size={20} /> <span className="font-semibold tracking-wide">Historial</span>
                             </NavLink>
-                            <NavLink to="/reportes" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
-                                <FileText size={20} /> Reportes
+                            <NavLink to="/reportes" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-slate-800 text-white shadow-lg' : 'hover:bg-slate-800/50 text-slate-400 hover:text-slate-100'}`}>
+                                <FileText size={20} /> <span className="font-semibold tracking-wide">Reportes PDF</span>
                             </NavLink>
-                            <NavLink to="/configuracion" className={({ isActive }) => `flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${isActive ? 'bg-blue-600 text-white' : 'hover:bg-slate-800 text-slate-300'}`}>
-                                <Settings size={20} /> Configuración / Info
+                            
+                            <div className="pt-4 pb-2 px-4">
+                                <span className="text-[10px] font-black uppercase tracking-[0.2em] text-slate-500">Sistema</span>
+                            </div>
+                            <NavLink to="/configuracion" className={({ isActive }) => `flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group ${isActive ? 'bg-slate-800 text-white shadow-lg' : 'hover:bg-slate-800/50 text-slate-400 hover:text-slate-100'}`}>
+                                <Settings size={20} /> <span className="font-semibold tracking-wide">Configuración</span>
                             </NavLink>
                         </>
                     )}

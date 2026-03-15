@@ -248,12 +248,16 @@ const RegistroRetiroPage = () => {
                                         {selectedStudent.familiares.map((fam, idx) => (
                                             <label 
                                                 key={idx} 
-                                                className={`flex flex-col p-4 border-2 rounded-2xl cursor-pointer transition-all duration-200 shadow-sm relative overflow-hidden group hover:shadow-md ${adultoId === fam.dni ? 'border-amber-500 bg-amber-50/50 ring-4 ring-amber-500/10' : 'border-slate-200 hover:border-amber-300 bg-white'}`}
+                                                className={`flex flex-col p-5 border-2 rounded-3xl cursor-pointer transition-all duration-300 shadow-sm relative overflow-hidden group hover:shadow-xl ${adultoId === fam.dni ? 'border-amber-500 bg-amber-50 ring-4 ring-amber-500/10 -translate-y-1' : 'border-slate-100 hover:border-amber-300 bg-white hover:-translate-y-0.5'}`}
                                             >
-                                                {/* Indicador visual activo (el check azul) lo ocultamos por css, usamos el border */}
-                                                <div className="flex items-start justify-between mb-2">
-                                                    <div className={`p-2 rounded-xl transition-colors ${adultoId === fam.dni ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-400 group-hover:text-amber-500 group-hover:bg-amber-50'}`}>
-                                                        <ShieldCheck size={20} />
+                                                {adultoId === fam.dni && (
+                                                    <div className="absolute top-0 right-0 p-2 bg-amber-500 text-white rounded-bl-xl shadow-md animate-in zoom-in duration-300">
+                                                        <UserCheck size={14} />
+                                                    </div>
+                                                )}
+                                                <div className="flex items-start justify-between mb-4">
+                                                    <div className={`p-3 rounded-2xl transition-all duration-300 ${adultoId === fam.dni ? 'bg-amber-100 text-amber-600 scale-110 shadow-inner' : 'bg-slate-50 text-slate-400 group-hover:text-amber-500 group-hover:bg-amber-50'}`}>
+                                                        <ShieldCheck size={24} />
                                                     </div>
                                                     <input
                                                         type="radio"
@@ -261,16 +265,16 @@ const RegistroRetiroPage = () => {
                                                         value={fam.dni}
                                                         checked={adultoId === fam.dni}
                                                         onChange={(e) => setAdultoId(e.target.value)}
-                                                        className="w-5 h-5 text-amber-600 border-gray-300 focus:ring-amber-500 mt-1 cursor-pointer"
+                                                        className="sr-only"
                                                     />
                                                 </div>
-                                                <div className="mt-auto pt-2">
-                                                    <p className="font-bold text-slate-800 leading-tight">{fam.nombre} {fam.apellido}</p>
-                                                    <div className="flex items-center gap-2 mt-1.5">
-                                                        <span className="text-xs font-medium text-slate-500">DNI {fam.dni}</span>
-                                                        <span className={`text-[10px] uppercase font-bold tracking-wider px-1.5 py-0.5 rounded ${adultoId === fam.dni ? 'bg-amber-200 text-amber-800' : 'bg-slate-100 text-slate-500'}`}>
+                                                <div className="mt-auto">
+                                                    <p className={`font-black text-lg leading-tight transition-colors ${adultoId === fam.dni ? 'text-amber-900' : 'text-slate-800'}`}>{fam.nombre} {fam.apellido}</p>
+                                                    <div className="flex items-center gap-2 mt-2">
+                                                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-lg border tracking-wider transition-colors uppercase ${adultoId === fam.dni ? 'bg-amber-600 text-white border-amber-600' : 'bg-slate-100 text-slate-500 border-slate-200'}`}>
                                                             {fam.relacion}
                                                         </span>
+                                                        <span className="text-xs font-black text-slate-400 tracking-tighter">DNI {fam.dni}</span>
                                                     </div>
                                                 </div>
                                             </label>
@@ -300,9 +304,10 @@ const RegistroRetiroPage = () => {
                             <button
                                 type="submit"
                                 disabled={!adultoId}
-                                className={`flex items-center justify-center w-full sm:w-auto gap-3 px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 ${adultoId ? 'bg-amber-500 hover:bg-amber-600 text-white shadow-xl shadow-amber-500/30 hover:-translate-y-1 active:translate-y-0 active:scale-95' : 'bg-slate-100 text-slate-400 cursor-not-allowed border-2 border-slate-200'}`}
+                                className={`group flex items-center justify-center w-full sm:w-auto gap-3 px-10 py-5 rounded-3xl font-black text-xl transition-all duration-500 ${adultoId ? 'bg-gradient-to-r from-amber-500 to-orange-600 text-white shadow-2xl shadow-amber-500/40 hover:-translate-y-1.5 hover:brightness-110 active:scale-95' : 'bg-slate-100 text-slate-300 cursor-not-allowed border-2 border-slate-200 uppercase tracking-widest text-sm'}`}
                             >
-                                <UserCheck size={24} /> {adultoId ? "Confirmar Retiro" : "Seleccione Adulto Primero"}
+                                <UserCheck size={28} className={adultoId ? "group-hover:scale-125 transition-transform" : ""} /> 
+                                {adultoId ? "CONFIRMAR RETIRO" : "Seleccione Adulto"}
                             </button>
                         </div>
                     </form>

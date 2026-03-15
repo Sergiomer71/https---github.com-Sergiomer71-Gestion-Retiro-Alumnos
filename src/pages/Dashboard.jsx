@@ -11,6 +11,7 @@ import {
     Legend,
 } from 'chart.js';
 import { Bar } from 'react-chartjs-2';
+import { GraduationCap, Clock, LayoutDashboard, Users, BookOpen } from 'lucide-react';
 
 ChartJS.register(
     CategoryScale,
@@ -86,28 +87,71 @@ const Dashboard = () => {
     };
 
     return (
-        <div className="space-y-6 animate-in fade-in duration-500 w-full">
-            <header>
-                <h1 className="text-3xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
-                <p className="text-slate-500 mt-1">Resumen general del sistema de retiros de alumnos.</p>
+        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700 w-full pb-10">
+            <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                <div>
+                    <h1 className="text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-3">
+                        <div className="p-2 bg-indigo-600 text-white rounded-xl">
+                            <LayoutDashboard size={28} />
+                        </div>
+                        Resumen General
+                    </h1>
+                    <p className="text-slate-500 mt-1 ml-11">Panel de control del sistema de retiros de alumnos.</p>
+                </div>
+                <div className="bg-indigo-50 text-indigo-700 px-4 py-2 rounded-2xl text-sm font-bold border border-indigo-100">
+                    {new Date().toLocaleDateString('es-AR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                </div>
             </header>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <span className="text-sm font-medium text-slate-500 uppercase tracking-wider">Total Alumnos</span>
-                    <span className="text-4xl font-bold text-slate-800 mt-2">{stats.alumnos}</span>
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <GraduationCap size={80} className="text-indigo-600" />
+                    </div>
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Inscriptos</span>
+                    <div className="flex items-center gap-3 mt-4">
+                        <div className="p-3 bg-indigo-50 text-indigo-600 rounded-2xl">
+                            <Users size={24} />
+                        </div>
+                        <span className="text-5xl font-black text-slate-800 tracking-tighter">{stats.alumnos}</span>
+                    </div>
+                    <p className="text-slate-400 text-xs mt-4 font-medium italic">Total de alumnos en el sistema</p>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <span className="text-sm font-medium text-slate-500 uppercase tracking-wider">Retiros Hoy</span>
-                    <span className="text-4xl font-bold text-blue-600 mt-2">{stats.retirosHoy}</span>
+
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <Clock size={80} className="text-emerald-600" />
+                    </div>
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Salidas de Hoy</span>
+                    <div className="flex items-center gap-3 mt-4">
+                        <div className="p-3 bg-emerald-50 text-emerald-600 rounded-2xl">
+                            <Clock size={24} />
+                        </div>
+                        <span className="text-5xl font-black text-emerald-600 tracking-tighter">{stats.retirosHoy}</span>
+                    </div>
+                    <p className="text-slate-400 text-xs mt-4 font-medium italic">Retiros registrados el día de hoy</p>
                 </div>
-                <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 flex flex-col">
-                    <span className="text-sm font-medium text-slate-500 uppercase tracking-wider">Cursos Activos</span>
-                    <span className="text-4xl font-bold text-slate-800 mt-2">{stats.cursos}</span>
+
+                <div className="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 flex flex-col relative overflow-hidden group hover:shadow-xl hover:-translate-y-1 transition-all duration-300">
+                    <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                        <BookOpen size={80} className="text-amber-600" />
+                    </div>
+                    <span className="text-sm font-bold text-slate-400 uppercase tracking-widest">Secciones</span>
+                    <div className="flex items-center gap-3 mt-4">
+                        <div className="p-3 bg-amber-50 text-amber-600 rounded-2xl">
+                            <BookOpen size={24} />
+                        </div>
+                        <span className="text-5xl font-black text-slate-800 tracking-tighter">{stats.cursos}</span>
+                    </div>
+                    <p className="text-slate-400 text-xs mt-4 font-medium italic">Cursos y divisiones activos</p>
                 </div>
             </div>
 
-            <div className="bg-white p-6 rounded-2xl shadow-sm border border-slate-100 min-h-[400px] flex items-center justify-center">
+            <div className="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 min-h-[450px]">
+                <div className="flex items-center gap-2 mb-6">
+                    <div className="w-1 h-6 bg-indigo-600 rounded-full"></div>
+                    <h3 className="text-lg font-bold text-slate-800 uppercase tracking-wider">Estadísticas por Curso</h3>
+                </div>
                 <div className="w-full h-[350px]">
                     <Bar options={chartOptions} data={chartData} />
                 </div>
