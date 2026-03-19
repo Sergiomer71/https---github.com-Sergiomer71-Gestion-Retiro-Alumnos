@@ -1,45 +1,69 @@
+// ─────────────────────────────────────────
+// ARCHIVO: Login.jsx
+// DESCRIPCIÓN: Pantalla de inicio de sesión y puerta de acceso al sistema
+// MÓDULO: Autenticación / Acceso
+// DEPENDENCIAS: AuthContext, React Router, Lucide Icons
+// ─────────────────────────────────────────
+
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../core/AuthContext';
 import { UserCheck, Download } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
 
+/**
+ * Componente que gestiona el ingreso de usuarios mediante nombre y contraseña.
+ */
 const Login = () => {
-    const [username, setUsername] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
-    const [deferredPrompt, setDeferredPrompt] = useState(null);
+    // Definición de estados locales para el formulario y mensajes de error
+    const [username, setUsername] = useState(''); // Nombre de usuario ingresado
+    const [password, setPassword] = useState(''); // Contraseña ingresada
+    const [error, setError] = useState('');      // Almacena mensajes si las credenciales fallan
+    const [deferredPrompt, setDeferredPrompt] = useState(null); // Evento para instalación de App
+
+    // Hooks de autenticación y navegación
     const { login, user, isAdmin } = useAuth();
     const navigate = useNavigate();
 
+    // Redirección automática: Si el usuario ya está logueado, lo mandamos a su pantalla correspondiente
     if (user) {
         return <Navigate to={isAdmin ? "/" : "/registro-retiro"} replace />;
     }
 
+    /**
+     * Procesa el envío del formulario de inicio de sesión.
+     * @param {Event} e - Evento de envío del formulario.
+     */
     const handleSubmit = (e) => {
-        e.preventDefault();
-        setError('');
+        e.preventDefault(); // Evitamos que la página se recargue
+        setError('');       // Limpiamos errores previos 
+
+        // Intentamos realizar el login con el servicio de autenticación
         const result = login(username, password);
+
         if (!result.success) {
+            // Si falla, mostramos el mensaje de error correspondiente
             setError(result.message);
         } else {
+            // Si es exitoso, navegamos según el rol del usuario
             navigate(result.role === 'ADMIN' ? "/" : "/registro-retiro");
         }
     };
 
+    // Efecto para gestionar la instalación de la aplicación como PWA
     useEffect(() => {
-        // 1. Revisar si el evento ya fue capturado en index.html
+        // 1. Revisar si el navegador ya disparó el evento de instalación
         if (window.deferredInstallPrompt) {
             setDeferredPrompt(window.deferredInstallPrompt);
         }
 
-        // 2. Escuchar si el evento ocurre después de montar
+        // 2. Escuchar si el evento ocurre mientras la página está abierta
         const handler = (e) => {
             e.preventDefault();
             setDeferredPrompt(e);
         };
         window.addEventListener('beforeinstallprompt', handler);
 
-        // 3. Escuchar nuestra notificación personalizada
+        // 3. Escuchar notificación personalizada del sistema
         const customHandler = () => {
             if (window.deferredInstallPrompt) {
                 setDeferredPrompt(window.deferredInstallPrompt);
@@ -53,14 +77,17 @@ const Login = () => {
         };
     }, []);
 
+    /**
+     * Lanza el diálogo nativo de instalación cuando el usuario hace clic.
+     */
     const handleInstallClick = async () => {
         if (!deferredPrompt) return;
-        // Muestra el prompt real nativo
+        
         deferredPrompt.prompt();
-        // Espera a que el usuario decida instalar o no
         const { outcome } = await deferredPrompt.userChoice;
+        
         if (outcome === 'accepted') {
-            console.log('App instalada');
+            console.log('Aplicación instalada por el usuario');
             setDeferredPrompt(null);
         }
     };
@@ -68,6 +95,7 @@ const Login = () => {
     return (
         <div className="min-h-screen flex items-center justify-center bg-slate-100 px-4">
             <div className="max-w-md w-full bg-white rounded-2xl shadow-xl p-8 transform transition-all">
+                {/* Encabezado Visual del Login */}
                 <div className="text-center mb-8">
                     <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 text-blue-600 mb-4">
                         <UserCheck size={32} />
@@ -76,12 +104,14 @@ const Login = () => {
                     <p className="text-slate-500 mt-2">Ingreso de Personal</p>
                 </div>
 
+                {/* Área de visualización de errores de credenciales */}
                 {error && (
                     <div className="mb-4 bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium border border-red-100">
                         {error}
                     </div>
                 )}
 
+                {/* Formulario de Login */}
                 <form onSubmit={handleSubmit} className="space-y-5">
                     <div>
                         <label className="block text-sm font-medium text-slate-700 mb-1">Usuario</label>
@@ -113,6 +143,7 @@ const Login = () => {
                         Iniciar Sesión
                     </button>
                     
+                    {/* Botón de Instalación (PWA) - Solo aparece si el navegador lo permite */}
                     {deferredPrompt && (
                         <div className="pt-6 border-t border-slate-100 mt-6 animate-in fade-in slide-in-from-bottom-4 duration-1000">
                              <button
@@ -126,6 +157,8 @@ const Login = () => {
                         </div>
                     )}
                 </form>
+
+                {/* Información de ayuda para el usuario en demo */}
                 <div className="mt-6 text-center text-xs text-slate-400">
                     <p>Credenciales por defecto (Pass: 123):<br />Admin: <strong>admin</strong> | Celador: <strong>celador</strong></p>
                 </div>
@@ -135,3 +168,4 @@ const Login = () => {
 };
 
 export default Login;
+

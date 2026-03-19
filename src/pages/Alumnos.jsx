@@ -1,20 +1,38 @@
+// ─────────────────────────────────────────
+// ARCHIVO: Alumnos.jsx
+// DESCRIPCIÓN: Pantalla para la gestión (CRUD) de alumnos y sus familiares autorizados.
+// MÓDULO: Gestión de Datos
+// DEPENDENCIAS: React, Lucide Icons, StorageService, Constants
+// ─────────────────────────────────────────
+
 import React, { useState, useEffect } from 'react';
 import StorageService from '../storage/localStorage';
 import { STORAGE_KEYS } from '../config/constants';
 import { Plus, Edit, Trash2, Users, UserPlus, X, GraduationCap, ShieldCheck, User } from 'lucide-react';
 
+/**
+ * Componente principal para administrar la base de datos de estudiantes.
+ * Permite crear, editar, eliminar alumnos y gestionar quiénes pueden retirarlos.
+ */
 const AlumnosPage = () => {
-    const [students, setStudents] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [currentStudent, setCurrentStudent] = useState(null);
-    const [familiares, setFamiliares] = useState([]);
-    const [preceptoresDisponibles, setPreceptoresDisponibles] = useState([]);
+    // --- ESTADOS DE DATOS ---
+    const [students, setStudents] = useState([]); // Lista completa de alumnos
+    const [isModalOpen, setIsModalOpen] = useState(false); // Control del modal de edición/creación
+    const [currentStudent, setCurrentStudent] = useState(null); // Alumno seleccionado para editar
+    const [familiares, setFamiliares] = useState([]); // Lista temporal de familiares del alumno actual
+    const [preceptoresDisponibles, setPreceptoresDisponibles] = useState([]); // Cargados para asignación
+    
+    // Estado para el formulario de nuevo familiar (dentro del modal)
     const [newFamiliar, setNewFamiliar] = useState({ nombre: '', apellido: '', dni: '', relacion: 'Madre' });
 
+    // Carga de datos al montar el componente
     useEffect(() => {
         loadStudents();
     }, []);
 
+    /**
+     * Recupera los alumnos y preceptores desde el almacenamiento local.
+     */
     const loadStudents = () => {
         const data = StorageService.get(STORAGE_KEYS.STUDENTS, []);
         const preceptores = StorageService.get(STORAGE_KEYS.PRECEPTORS, []);
@@ -22,9 +40,15 @@ const AlumnosPage = () => {
         setPreceptoresDisponibles(preceptores);
     };
 
+    /**
+     * Procesa el guardado de un alumno (nuevo o existente).
+     * @param {Event} e - Evento del formulario.
+     */
     const handleSave = (e) => {
         e.preventDefault();
         const formData = new FormData(e.target);
+        
+        // Construimos el objeto del alumno con los datos del formulario y el estado de familiares
         const newStudent = {
             nombre: formData.get('nombre'),
             apellido: formData.get('apellido'),
@@ -34,21 +58,27 @@ const AlumnosPage = () => {
             turno: formData.get('turno'),
             horaSalida: formData.get('horaSalida'),
             preceptor: formData.get('preceptor'),
-            familiares: familiares
+            familiares: familiares // Usamos el estado local que gestiona la lista de autorizados
         };
 
+        // Si hay un currentStudent con ID, es una edición; si no, es una creación
         if (currentStudent && currentStudent.id) {
             StorageService.updateItem(STORAGE_KEYS.STUDENTS, currentStudent.id, newStudent);
         } else {
             StorageService.addItem(STORAGE_KEYS.STUDENTS, newStudent);
         }
 
+        // Limpiamos estados y cerramos modal
         setIsModalOpen(false);
         setCurrentStudent(null);
         setFamiliares([]);
-        loadStudents();
+        loadStudents(); // Refrescamos la lista en pantalla
     };
 
+    /**
+     * Elimina un alumno tras confirmar la acción.
+     * @param {string} id - ID único del estudiante.
+     */
     const handleDelete = (id) => {
         if (confirm('¿Está seguro de eliminar este alumno?')) {
             StorageService.removeItem(STORAGE_KEYS.STUDENTS, id);
@@ -56,24 +86,41 @@ const AlumnosPage = () => {
         }
     };
 
+    /**
+     * Abre el modal cargando los datos del alumno seleccionado para editar.
+     * @param {object} student - Datos del alumno.
+     */
     const openEdit = (student) => {
         setCurrentStudent(student);
         setFamiliares(student.familiares || []);
         setIsModalOpen(true);
     };
 
+    /**
+     * Abre el modal en modo creación (limpio).
+     */
     const openNew = () => {
         setCurrentStudent(null);
         setFamiliares([]);
         setIsModalOpen(true);
     };
 
+    /**
+     * Agrega un familiar a la lista temporal del modal.
+     */
     const handleAddFamiliar = () => {
+        // Validación: Requerimos al menos nombre y DNI
         if (!newFamiliar.nombre || !newFamiliar.dni) return;
+        
         setFamiliares([...familiares, newFamiliar]);
+        // Reiniciamos los campos del mini-formulario
         setNewFamiliar({ nombre: '', apellido: '', dni: '', relacion: 'Madre' });
     };
 
+    /**
+     * Remueve un familiar de la lista temporal por su índice.
+     * @param {number} index - Posición en el array.
+     */
     const handleRemoveFamiliar = (index) => {
         const updated = [...familiares];
         updated.splice(index, 1);
@@ -82,6 +129,7 @@ const AlumnosPage = () => {
 
     return (
         <div className="space-y-6 animate-in fade-in duration-500">
+            {/* Cabecera de la Página */}
             <header className="flex justify-between items-center bg-white p-6 rounded-2xl shadow-sm border border-slate-100">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800 flex items-center gap-2">
@@ -97,6 +145,7 @@ const AlumnosPage = () => {
                 </button>
             </header>
 
+            {/* Tabla de Alumnos */}
             <div className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
                 <div className="overflow-x-auto">
                     <table className="w-full text-left text-sm text-slate-600 min-w-[700px]">
@@ -141,7 +190,7 @@ const AlumnosPage = () => {
                                             <span className="text-xs font-semibold text-slate-500 bg-slate-50 px-2 py-1 rounded border border-slate-100">{student.turno}</span>
                                         </td>
                                         <td className="px-6 py-5">
-                                            <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-black w-max border-2 border-amber-100/50 shadow-sm animate-pulse-subtle">
+                                            <div className="flex items-center gap-2 bg-amber-50 text-amber-700 px-3 py-1.5 rounded-xl text-xs font-black w-max border-2 border-amber-100/50 shadow-sm">
                                                 <ShieldCheck size={16} className="text-amber-600" />
                                                 {student.familiares?.length || 0} AUTORIZADOS
                                             </div>
@@ -164,9 +213,11 @@ const AlumnosPage = () => {
                 </div>
             </div>
 
+            {/* Modal de Alta y Edición */}
             {isModalOpen && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-sm">
                     <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-in zoom-in-95 duration-200">
+                        {/* Cabecera del Modal */}
                         <div className="px-6 py-4 border-b border-slate-100 flex justify-between items-center sticky top-0 bg-white/90 backdrop-blur-md z-10">
                             <h3 className="text-lg font-bold text-slate-800">
                                 {currentStudent ? 'Editar Alumno' : 'Nuevo Alumno'}
@@ -175,13 +226,16 @@ const AlumnosPage = () => {
                                 ✕
                             </button>
                         </div>
+                        
                         <form onSubmit={handleSave} className="p-6 space-y-6">
+                            {/* SECCIÓN 1: Información Académica y Personal del Alumno */}
                             <div className="bg-indigo-50/50 p-4 rounded-xl border border-indigo-100/50">
                                 <div className="flex items-center gap-2 mb-4 text-indigo-800">
                                     <GraduationCap size={20} className="text-indigo-600" />
                                     <h4 className="font-bold">Datos del Estudiante</h4>
                                 </div>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    {/* Campos básicos con validación obligatoria */}
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Nombre</label>
                                         <input name="nombre" defaultValue={currentStudent?.nombre} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
@@ -226,14 +280,14 @@ const AlumnosPage = () => {
                                 </div>
                             </div>
 
-                            {/* Seccion de Familiares */}
+                            {/* SECCIÓN 2: Gestión de Familiares Autorizados */}
                             <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-200/50">
                                 <div className="flex items-center gap-2 mb-4 text-amber-900 border-b border-amber-200/50 pb-2">
                                     <ShieldCheck size={20} className="text-amber-600" />
                                     <h4 className="font-bold">Familiares Autorizados / Retiro</h4>
                                 </div>
 
-                                {/* Formulario para agregar familiar */}
+                                {/* Formulario interno para agregar un familiar individualmente */}
                                 <div className="bg-white p-4 rounded-xl border border-amber-200 mb-4 shadow-sm">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                                         <input
@@ -282,7 +336,7 @@ const AlumnosPage = () => {
                                     </div>
                                 </div>
 
-                                {/* Lista de familiares agregados */}
+                                {/* Listado de familiares agregados hasta el momento */}
                                 {familiares.length === 0 ? (
                                     <div className="flex flex-col items-center justify-center py-6 text-amber-700/60 bg-white/50 rounded-xl border border-dashed border-amber-200">
                                         <User size={32} className="mb-2 opacity-50" />
@@ -317,6 +371,7 @@ const AlumnosPage = () => {
                                 )}
                             </div>
 
+                            {/* Botones finales del modal */}
                             <div className="flex flex-col-reverse sm:flex-row justify-end gap-3 pt-6 w-full">
                                 <button type="button" onClick={() => setIsModalOpen(false)} className="w-full sm:w-auto px-6 py-2.5 text-slate-600 font-medium hover:bg-slate-100 rounded-xl transition-colors">
                                     Cancelar
