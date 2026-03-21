@@ -17,6 +17,8 @@ import ConfiguracionPage from './pages/Configuracion';
 import ReportesPage from './pages/Reportes';
 import HistorialRetirosPage from './pages/HistorialRetiros';
 import PreceptoresPage from './pages/Preceptores';
+import AltaCeladorPage from './pages/AltaCelador';
+import AltaCursoPage from './pages/AltaCurso';
 import { ROLES } from './config/constants';
 
 /**
@@ -84,6 +86,16 @@ const AppRoutes = () => {
         <Route path="preceptores" element={
           <AdminRoute>
             <PreceptoresPage />
+          </AdminRoute>
+        } />
+        <Route path="alta-celador" element={
+          <AdminRoute>
+            <AltaCeladorPage />
+          </AdminRoute>
+        } />
+        <Route path="alta-curso" element={
+          <AdminRoute>
+            <AltaCursoPage />
           </AdminRoute>
         } />
 

@@ -17,7 +17,7 @@ import App from './App.jsx';
 
 /**
  * Configuración de la ruta base para los activos de Shoelace (iconos, etc.)
- * Se utiliza un CDN para cargar estos recursos de forma eficiente.
+ * Se utiliza un CDN (Red de Distribución de Contenido) para cargar estos recursos de forma eficiente.
  */
 setBasePath('https://cdn.jsdelivr.net/npm/@shoelace-style/shoelace@2.19.1/cdn/');
 

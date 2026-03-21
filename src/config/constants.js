@@ -15,6 +15,8 @@ export const STORAGE_KEYS = {
     USERS: 'school_withdrawal_users',           // Usuarios del sistema (Admin/Celador)
     SETTINGS: 'school_withdrawal_settings',     // Configuraciones generales de la app
     PRECEPTORS: 'school_withdrawal_preceptors', // Listado de preceptores asignados
+    CELADORES: 'school_withdrawal_celadores',   // Listado de celadores registrados
+    CURSOS: 'school_withdrawal_cursos',         // Listado de cursos y divisiones
 };
 
 /**

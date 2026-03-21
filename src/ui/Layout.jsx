@@ -9,7 +9,7 @@ import React from 'react';
 import { Outlet, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../core/AuthContext';
 import StorageService from '../storage/localStorage';
-import { LogOut, LayoutDashboard, Users, UserCheck, Settings, FileText, Calendar, Upload, Image as ImageIcon, Download, Menu, X } from 'lucide-react';
+import { LogOut, LayoutDashboard, Users, UserCheck, Settings, FileText, Calendar, Upload, Image as ImageIcon, Download, Menu, X, UserPlus, BookOpen } from 'lucide-react';
 
 /**
  * Componente que define la estructura común de la aplicación:
@@ -203,6 +203,12 @@ const Layout = () => {
                             </NavLink>
                             <NavLink to="/preceptores" className={(state) => navLinkClass(state)}>
                                 <UserCheck size={20} /> <span className="font-semibold tracking-wide">Preceptores</span>
+                            </NavLink>
+                            <NavLink to="/alta-celador" className={(state) => navLinkClass(state)}>
+                                <UserPlus size={20} /> <span className="font-semibold tracking-wide">Alta Celador</span>
+                            </NavLink>
+                            <NavLink to="/alta-curso" className={(state) => navLinkClass(state)}>
+                                <BookOpen size={20} /> <span className="font-semibold tracking-wide">Alta Curso</span>
                             </NavLink>
 
                             <div className="pt-4 pb-2 px-4">
