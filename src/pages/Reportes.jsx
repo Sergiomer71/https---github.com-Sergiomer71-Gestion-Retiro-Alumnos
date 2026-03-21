@@ -125,13 +125,14 @@ const ReportesPage = () => {
             `${w.curso} "${w.division}"`,
             w.adultoNombre,
             w.adultoDni,
-            w.motivo
+            w.motivo,
+            w.celadorNombre || w.celadorId || 'No Disp.'
         ]);
 
         // Crear la tabla en el PDF
         autoTable(doc, {
             startY: 38,
-            head: [['Fecha', 'Hora', 'Alumno', 'Curso', 'Retirado por', 'DNI Adulto', 'Motivo']],
+            head: [['Fecha', 'Hora', 'Alumno', 'Curso', 'Retirado por', 'DNI Adulto', 'Motivo', 'Celador a Cargo']],
             body: tableData,
             theme: 'grid',
             headStyles: { fillColor: [59, 130, 246] }

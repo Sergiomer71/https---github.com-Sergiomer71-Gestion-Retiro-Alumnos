@@ -7,7 +7,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import StorageService from '../storage/localStorage';
-import { STORAGE_KEYS } from '../config/constants';
+import { STORAGE_KEYS, ROLES } from '../config/constants';
+import { useAuth } from '../core/AuthContext';
 import { Search, UserCheck, Clock, UserMinus, Users, GraduationCap, ShieldCheck } from 'lucide-react';
 
 /**
@@ -26,8 +27,19 @@ const RegistroRetiroPage = () => {
     const [motivo, setMotivo] = useState('Enfermedad'); // Razón de la salida
     const [adultoId, setAdultoId] = useState(''); // DNI del familiar que retira
     const [celador, setCelador] = useState(sessionStorage.getItem('activeUserId')); // Usuario que registra (sereno/celador)
+    
+    // --- ESTADOS PARA SELECCIÓN DE CELADOR ---
+    const [celadoresDisponibles, setCeladoresDisponibles] = useState([]);
+    const [celadorSeleccionado, setCeladorSeleccionado] = useState(''); // Requerido para Celadores
 
+    const { user } = useAuth(); // Obtener información del usuario logueado
     const searchDebounceRef = useRef(null); // Referencia para el temporizador de búsqueda (debounce)
+
+    // Cargar la lista de celadores al iniciar
+    useEffect(() => {
+        const celadores = StorageService.get(STORAGE_KEYS.CELADORES, []);
+        setCeladoresDisponibles(celadores);
+    }, []);
 
     // Efecto que reacciona a los cambios en el término de búsqueda
     useEffect(() => {
@@ -109,6 +121,21 @@ const RegistroRetiroPage = () => {
         // Validación: Necesitamos alumno y el DNI del adulto responsable
         if (!selectedStudent || !adultoId) return;
 
+        let finalCeladorId = celador;
+        let finalCeladorNombre = user?.username || 'Administrador'; // Fallback genérico
+
+        if (user?.role === ROLES.CELADOR) {
+            if (!celadorSeleccionado) {
+                alert("Debe seleccionar un celador responsable.");
+                return;
+            }
+            const celData = celadoresDisponibles.find(c => c.id === celadorSeleccionado);
+            if (celData) {
+                finalCeladorId = celData.id;
+                finalCeladorNombre = `${celData.nombre} ${celData.apellido}`;
+            }
+        }
+
         // Buscamos los detalles del familiar seleccionado dentro de la ficha del alumno
         const adulto = selectedStudent.familiares?.find(f => f.dni === adultoId) || { nombre: 'Desconocido' };
 
@@ -121,7 +148,8 @@ const RegistroRetiroPage = () => {
             adultoNombre: `${adulto.nombre} ${adulto.apellido || ''}`,
             adultoDni: adulto.dni,
             motivo,
-            celadorId: celador,
+            celadorId: finalCeladorId,
+            celadorNombre: finalCeladorNombre,
             fecha: new Date().toISOString().split('T')[0], // Formato AAAA-MM-DD
             hora: new Date().toLocaleTimeString('en-US', { hour12: false }) // Formato HH:MM:SS
         };
@@ -134,6 +162,7 @@ const RegistroRetiroPage = () => {
             setPreceptorAsignado(null);
             setMotivo('Enfermedad');
             setAdultoId('');
+            setCeladorSeleccionado('');
         } catch (err) {
             alert(err.message);
         }
@@ -318,21 +347,47 @@ const RegistroRetiroPage = () => {
                             )}
                         </div>
 
-                        {/* Motivo de la salida */}
-                        <div className="pt-4">
-                            <label className="block text-sm font-bold text-slate-800 mb-3 uppercase tracking-wide">Motivo del Retiro</label>
-                            <select
-                                value={motivo}
-                                onChange={(e) => setMotivo(e.target.value)}
-                                className="w-full sm:w-1/2 border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700 bg-white shadow-sm"
-                            >
-                                <option value="Enfermedad">Enfermedad</option>
-                                <option value="Cita Médica">Cita Médica</option>
-                                <option value="Problemas Familiares">Problemas Familiares</option>
-                                <option value="Trámite Personal">Trámite Personal</option>
-                                <option value="Actividad Extracurricular">Actividad Extracurricular</option>
-                                <option value="Otro">Otro Motivo</option>
-                            </select>
+                        {/* Motivo de la salida y Selector de Celador */}
+                        <div className="pt-4 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                            <div>
+                                <label className="block text-sm font-bold text-slate-800 mb-3 uppercase tracking-wide">Motivo del Retiro</label>
+                                <select
+                                    value={motivo}
+                                    onChange={(e) => setMotivo(e.target.value)}
+                                    className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700 bg-white shadow-sm"
+                                >
+                                    <option value="Enfermedad">Enfermedad</option>
+                                    <option value="Cita Médica">Cita Médica</option>
+                                    <option value="Problemas Familiares">Problemas Familiares</option>
+                                    <option value="Trámite Personal">Trámite Personal</option>
+                                    <option value="Actividad Extracurricular">Actividad Extracurricular</option>
+                                    <option value="Otro">Otro Motivo</option>
+                                </select>
+                            </div>
+
+                            {/* Selector de Celador (SOLO para rol CELADOR) */}
+                            {user?.role === ROLES.CELADOR && (
+                                <div className="animate-in fade-in zoom-in-95 duration-300">
+                                    <label className="flex items-center justify-between text-sm font-bold text-slate-800 mb-3 uppercase tracking-wide">
+                                        <span>Celador a Cargo</span>
+                                        {celadoresDisponibles.length === 0 && <span className="text-[10px] text-red-500 font-bold ml-2">* Solicite alta al Administrador</span>}
+                                    </label>
+                                    <select
+                                        value={celadorSeleccionado}
+                                        onChange={(e) => setCeladorSeleccionado(e.target.value)}
+                                        required
+                                        disabled={celadoresDisponibles.length === 0}
+                                        className="w-full border-2 border-slate-200 rounded-xl px-4 py-3 outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all font-medium text-slate-700 bg-white shadow-sm disabled:bg-slate-100 disabled:cursor-not-allowed text-ellipsis"
+                                    >
+                                        <option value="">Seleccione su identidad...</option>
+                                        {celadoresDisponibles.map(c => (
+                                            <option key={c.id} value={c.id}>
+                                                {c.nombre} {c.apellido} — Turno {c.turno}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+                            )}
                         </div>
 
                         {/* Botón de Confirmación Final */}

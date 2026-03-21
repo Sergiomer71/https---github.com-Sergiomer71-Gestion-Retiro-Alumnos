@@ -21,6 +21,8 @@ const AlumnosPage = () => {
     const [currentStudent, setCurrentStudent] = useState(null); // Alumno seleccionado para editar
     const [familiares, setFamiliares] = useState([]); // Lista temporal de familiares del alumno actual
     const [preceptoresDisponibles, setPreceptoresDisponibles] = useState([]); // Cargados para asignación
+    const [cursosDisponibles, setCursosDisponibles] = useState([]); // Cursos cargados
+    const [selectedCourse, setSelectedCourse] = useState(''); // Tracking para auto-resolver preceptor
     
     // Estado para el formulario de nuevo familiar (dentro del modal)
     const [newFamiliar, setNewFamiliar] = useState({ nombre: '', apellido: '', dni: '', relacion: 'Madre' });
@@ -36,9 +38,30 @@ const AlumnosPage = () => {
     const loadStudents = () => {
         const data = StorageService.get(STORAGE_KEYS.STUDENTS, []);
         const preceptores = StorageService.get(STORAGE_KEYS.PRECEPTORS, []);
+        const cursos = StorageService.get(STORAGE_KEYS.CURSOS, []);
         setStudents(data);
         setPreceptoresDisponibles(preceptores);
+        setCursosDisponibles(cursos);
     };
+
+    // Auto-resolver preceptor coincidente según curso elegido
+    const matchedPreceptor = React.useMemo(() => {
+        if (!selectedCourse) return null;
+        const parts = selectedCourse.split(' ');
+        const curso = parts[0] || '';
+        const division = parts.slice(1).join(' ') || '';
+
+        return preceptoresDisponibles.find(p => {
+            if (p.cursos && p.cursos.length > 0) {
+                return p.cursos.some(c => 
+                    c.curso.toLowerCase() === curso.toLowerCase() && 
+                    c.division.toLowerCase() === division.toLowerCase()
+                );
+            }
+            return p.curso?.toLowerCase() === curso.toLowerCase() && 
+                   p.division?.toLowerCase() === division.toLowerCase();
+        }) || null;
+    }, [selectedCourse, preceptoresDisponibles]);
 
     /**
      * Procesa el guardado de un alumno (nuevo o existente).
@@ -48,16 +71,32 @@ const AlumnosPage = () => {
         e.preventDefault();
         const formData = new FormData(e.target);
         
+        const cursoSeleccionado = formData.get('curso_seleccionado') || '';
+        const parts = cursoSeleccionado.split(' ');
+        const parseCurso = parts[0] || '';
+        const parseDivision = parts.slice(1).join(' ') || '';
+
+        // Determinación del Preceptor a guardar de forma transparente
+        let finalPreceptorId = matchedPreceptor ? matchedPreceptor.id : '';
+        let finalPreceptorNombre = matchedPreceptor ? `${matchedPreceptor.nombre} ${matchedPreceptor.apellido}` : '';
+        
+        // Conservar histórico si se edita sin alternar el curso
+        if (!matchedPreceptor && currentStudent && cursoSeleccionado === `${currentStudent.curso} ${currentStudent.division}`.trim()) {
+            finalPreceptorId = currentStudent.preceptor || '';
+            finalPreceptorNombre = currentStudent.preceptorNombre || '';
+        }
+
         // Construimos el objeto del alumno con los datos del formulario y el estado de familiares
         const newStudent = {
             nombre: formData.get('nombre'),
             apellido: formData.get('apellido'),
             dni: formData.get('dni'),
-            curso: formData.get('curso'),
-            division: formData.get('division'),
+            curso: parseCurso,
+            division: parseDivision,
             turno: formData.get('turno'),
             horaSalida: formData.get('horaSalida'),
-            preceptor: formData.get('preceptor'),
+            preceptor: finalPreceptorId,
+            preceptorNombre: finalPreceptorNombre,
             familiares: familiares // Usamos el estado local que gestiona la lista de autorizados
         };
 
@@ -93,6 +132,7 @@ const AlumnosPage = () => {
     const openEdit = (student) => {
         setCurrentStudent(student);
         setFamiliares(student.familiares || []);
+        setSelectedCourse(`${student.curso} ${student.division}`.trim());
         setIsModalOpen(true);
     };
 
@@ -102,6 +142,7 @@ const AlumnosPage = () => {
     const openNew = () => {
         setCurrentStudent(null);
         setFamiliares([]);
+        setSelectedCourse('');
         setIsModalOpen(true);
     };
 
@@ -249,12 +290,26 @@ const AlumnosPage = () => {
                                         <input type="number" name="dni" defaultValue={currentStudent?.dni} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Curso</label>
-                                        <input name="curso" defaultValue={currentStudent?.curso} required placeholder="Ej: 1ro, 2do" className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
-                                    </div>
-                                    <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">División</label>
-                                        <input name="division" defaultValue={currentStudent?.division} required placeholder="Ej: A, B" className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
+                                        <label className="block text-sm font-medium text-slate-700 mb-1 flex items-center justify-between">
+                                            <span>Curso y División</span>
+                                            {cursosDisponibles.length === 0 && <span className="text-[10px] text-red-500 font-bold ml-2">* Debe dar de alta un curso primero</span>}
+                                        </label>
+                                        <select 
+                                            name="curso_seleccionado" 
+                                            value={selectedCourse}
+                                            onChange={e => setSelectedCourse(e.target.value)}
+                                            required 
+                                            className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white disabled:bg-slate-100 disabled:cursor-not-allowed text-ellipsis"
+                                            disabled={cursosDisponibles.length === 0}
+                                        >
+                                            <option value="">Seleccione un curso...</option>
+                                            {currentStudent && !cursosDisponibles.some(c => c.nombre === `${currentStudent.curso} ${currentStudent.division}`.trim()) && `${currentStudent.curso} ${currentStudent.division}`.trim() && (
+                                                <option value={`${currentStudent.curso} ${currentStudent.division}`.trim()}>{currentStudent.curso} {currentStudent.division} (Histórico)</option>
+                                            )}
+                                            {cursosDisponibles.map(c => (
+                                                <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                                            ))}
+                                        </select>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-slate-700 mb-1">Turno</label>
@@ -269,13 +324,19 @@ const AlumnosPage = () => {
                                         <input type="time" name="horaSalida" defaultValue={currentStudent?.horaSalida} required className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors" />
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-slate-700 mb-1">Preceptor Asignado (Opcional)</label>
-                                        <select name="preceptor" defaultValue={currentStudent?.preceptor || ""} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-colors bg-white">
-                                            <option value="">Seleccione o autodetectar (Por Curso)</option>
-                                            {preceptoresDisponibles.map(p => (
-                                                <option key={p.id} value={p.id}>{p.apellido}, {p.nombre}</option>
-                                            ))}
-                                        </select>
+                                        <label className="block text-sm font-medium text-slate-700 mb-1">Preceptor Asignado</label>
+                                        <input 
+                                            type="text"
+                                            value={
+                                                matchedPreceptor 
+                                                    ? `${matchedPreceptor.nombre} ${matchedPreceptor.apellido}` 
+                                                    : (!matchedPreceptor && currentStudent && selectedCourse === `${currentStudent.curso} ${currentStudent.division}`.trim() && (currentStudent.preceptorNombre || currentStudent.preceptor)
+                                                        ? `${currentStudent.preceptorNombre || currentStudent.preceptor} (Histórico)`
+                                                        : 'Sin preceptor asignado para este curso')
+                                            }
+                                            disabled 
+                                            className="w-full border border-slate-200 rounded-lg px-3 py-2 bg-slate-50 text-slate-500 outline-none cursor-not-allowed font-medium text-ellipsis"
+                                        />
                                     </div>
                                 </div>
                             </div>

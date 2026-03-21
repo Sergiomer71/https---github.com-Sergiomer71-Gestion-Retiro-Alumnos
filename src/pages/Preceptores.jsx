@@ -28,8 +28,8 @@ const PreceptoresPage = () => {
     
     // --- GESTIÓN DE CURSOS MÚLTIPLES ---
     const [cursosAsignados, setCursosAsignados] = useState([]); // Lista de {curso, division} asignados al preceptor
-    const [tempCurso, setTempCurso] = useState('1ro'); // Valor temporal del selector de curso en el formulario
-    const [tempDivision, setTempDivision] = useState(''); // Valor temporal del campo división
+    const [tempCursoSeleccionado, setTempCursoSeleccionado] = useState(''); // Valor temporal del selector combinado
+    const [cursosDisponibles, setCursosDisponibles] = useState([]); // Cursos cargados
 
     // Cargar datos al iniciar el componente
     useEffect(() => {
@@ -41,7 +41,9 @@ const PreceptoresPage = () => {
      */
     const cargarPreceptores = () => {
         const data = StorageService.get(STORAGE_KEYS.PRECEPTORS, []);
+        const cursos = StorageService.get(STORAGE_KEYS.CURSOS, []);
         setPreceptores(data);
+        setCursosDisponibles(cursos);
     };
 
     /**
@@ -71,8 +73,7 @@ const PreceptoresPage = () => {
             setCursosAsignados([]);
         }
         // Reiniciamos selectores temporales de curso
-        setTempCurso('1ro');
-        setTempDivision('');
+        setTempCursoSeleccionado('');
         setIsFormOpen(true);
     };
 
@@ -80,9 +81,20 @@ const PreceptoresPage = () => {
      * Agrega un curso y división a la lista temporal del preceptor actual.
      */
     const handleAddCurso = () => {
-        if (!tempDivision) return; // Validación simple: requiere división
-        setCursosAsignados([...cursosAsignados, { curso: tempCurso, division: tempDivision }]);
-        setTempDivision(''); // Limpiamos para el siguiente curso
+        if (!tempCursoSeleccionado) return; // Validación simple
+        
+        const parts = tempCursoSeleccionado.split(' ');
+        const parseCurso = parts[0] || '';
+        const parseDivision = parts.slice(1).join(' ') || '';
+
+        // Prevenir duplicados en la lista de asignados
+        if (cursosAsignados.some(c => c.curso === parseCurso && c.division === parseDivision)) {
+            alert('El curso ya está asignado a este preceptor.');
+            return;
+        }
+
+        setCursosAsignados([...cursosAsignados, { curso: parseCurso, division: parseDivision }]);
+        setTempCursoSeleccionado(''); // Limpiamos para el siguiente curso
     };
 
     /**
@@ -279,23 +291,25 @@ const PreceptoresPage = () => {
                             <div className="pt-2 border-t border-slate-100 mt-2">
                                 <label className="block text-sm font-bold text-slate-700 mb-2">Asignación de Cursos</label>
                                 <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
-                                    <div className="grid grid-cols-[1fr,1fr,auto] gap-2 items-end">
+                                    <div className="grid grid-cols-[1fr,auto] gap-2 items-end">
                                         <div>
-                                            <label className="block text-xs font-medium text-slate-500 mb-1">Curso</label>
-                                            <select value={tempCurso} onChange={e => setTempCurso(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white">
-                                                <option value="1ro">1ro</option>
-                                                <option value="2do">2do</option>
-                                                <option value="3ro">3ro</option>
-                                                <option value="4to">4to</option>
-                                                <option value="5to">5to</option>
-                                                <option value="6to">6to</option>
+                                            <label className="block text-xs font-medium text-slate-500 mb-1 flex justify-between">
+                                                <span>Curso y División disponibles</span>
+                                                {cursosDisponibles.length === 0 && <span className="text-[10px] text-red-500 font-bold ml-2">* Debe dar de alta un curso primero</span>}
+                                            </label>
+                                            <select 
+                                                value={tempCursoSeleccionado} 
+                                                onChange={e => setTempCursoSeleccionado(e.target.value)} 
+                                                className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 text-sm bg-white disabled:bg-slate-100 disabled:cursor-not-allowed"
+                                                disabled={cursosDisponibles.length === 0}
+                                            >
+                                                <option value="">Seleccione un curso...</option>
+                                                {cursosDisponibles.map(c => (
+                                                    <option key={c.id} value={c.nombre}>{c.nombre}</option>
+                                                ))}
                                             </select>
                                         </div>
-                                        <div>
-                                            <label className="block text-xs font-medium text-slate-500 mb-1">División</label>
-                                            <input type="text" placeholder="A, B, Unica..." value={tempDivision} onChange={e => setTempDivision(e.target.value)} className="w-full border border-slate-300 rounded-lg px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 text-sm" />
-                                        </div>
-                                        <button type="button" onClick={handleAddCurso} disabled={!tempDivision} className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-900 disabled:opacity-50 transition-colors text-sm font-medium">
+                                        <button type="button" onClick={handleAddCurso} disabled={!tempCursoSeleccionado} className="bg-slate-800 text-white px-4 py-2 rounded-lg hover:bg-slate-900 disabled:opacity-50 transition-colors text-sm font-medium">
                                             Agregar
                                         </button>
                                     </div>
