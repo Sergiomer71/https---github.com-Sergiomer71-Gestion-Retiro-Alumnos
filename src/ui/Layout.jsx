@@ -9,6 +9,7 @@ import React from 'react';
 import { Outlet, Navigate, NavLink, useLocation } from 'react-router-dom';
 import { useAuth } from '../core/AuthContext';
 import StorageService from '../storage/localStorage';
+import { STORAGE_KEYS } from '../config/constants';
 import { LogOut, LayoutDashboard, Users, UserCheck, Settings, FileText, Calendar, Upload, Image as ImageIcon, Download, Menu, X, UserPlus, BookOpen } from 'lucide-react';
 
 /**
@@ -36,9 +37,11 @@ const Layout = () => {
 
     // Efecto Inicial: Carga configuraciones y prepara la instalación de la App
     React.useEffect(() => {
-        // Recuperar el logo personalizado guardado anteriormente
-        const savedLogo = StorageService.get('SCHOOL_LOGO_BASE64');
-        if (savedLogo) setLogoPreview(savedLogo);
+        // Recuperar el la configuración de la institución (si existe)
+        const institucion = StorageService.get(STORAGE_KEYS.INSTITUCION);
+        if (institucion && institucion.logo) {
+            setLogoPreview(institucion.logo);
+        }
 
         // Lógica de instalación (PWA)
         if (window.deferredInstallPrompt) {
@@ -94,9 +97,18 @@ const Layout = () => {
         const reader = new FileReader();
         reader.onloadend = () => {
             const base64String = reader.result;
-            // Actualizamos la vista previa y guardamos en LocalStorage directamente
+            // Actualizamos la vista previa y guardamos en la key oficial de la configuración actual
             setLogoPreview(base64String);
-            localStorage.setItem('SCHOOL_LOGO_BASE64', base64String);
+            
+            // Re-Guardamos la imagen dentro del paquete 'Institucion', no como variable suelta,
+            // ya que el header se basa en leer este JSON directamente para poblar todo el perfil.
+            const institucionConfig = StorageService.get(STORAGE_KEYS.INSTITUCION) || {};
+            
+            // IMPORTANT: Si existía previamente un arreglo por el bug viejo, lo reseteamos a objeto
+            const safeConfig = Array.isArray(institucionConfig) ? (institucionConfig[0] || {}) : institucionConfig;
+            
+            safeConfig.logo = base64String;
+            StorageService.set(STORAGE_KEYS.INSTITUCION, safeConfig);
         };
         reader.readAsDataURL(file);
     };
@@ -160,9 +172,9 @@ const Layout = () => {
 
                     <div className="flex-1 min-w-0">
                         <h1 className="text-lg font-bold tracking-tight text-white truncate leading-tight">
-                            Retiro Alumnos
+                            {StorageService.get(STORAGE_KEYS.INSTITUCION)?.nombre || "Institución no configurada"}
                         </h1>
-                        <p className="text-slate-400 text-xs uppercase tracking-wide font-medium mt-0.5 truncate bg-slate-800/50 rounded px-1 inline-block">Rol: {user.role}</p>
+                        <p className="text-slate-400 text-[10px] uppercase font-bold tracking-[0.1em] mt-0.5 truncate bg-slate-800/40 rounded px-1.5 py-0.5 inline-block">SISTEMA REGISTRO DE SALIDAS</p>
                     </div>
 
                     {/* Botón para cerrar el menú en dispositivos móviles */}
@@ -268,7 +280,9 @@ const Layout = () => {
                         ) : (
                             <ImageIcon size={20} className="text-blue-400" />
                         )}
-                        <span className="font-bold text-sm tracking-tight">Retiro Alumnos</span>
+                        <span className="font-bold text-[13px] tracking-tight truncate max-w-[150px]">
+                            {StorageService.get(STORAGE_KEYS.INSTITUCION)?.nombre || "Institución no conf."}
+                        </span>
                     </div>
                 </header>
 

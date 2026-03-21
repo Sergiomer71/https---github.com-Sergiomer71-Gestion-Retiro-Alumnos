@@ -9,6 +9,8 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../core/AuthContext';
 import { UserCheck, Download } from 'lucide-react';
 import { useNavigate, Navigate } from 'react-router-dom';
+import StorageService from '../storage/localStorage';
+import { STORAGE_KEYS } from '../config/constants';
 
 /**
  * Componente que gestiona el ingreso de usuarios mediante nombre y contraseña.
@@ -26,7 +28,15 @@ const Login = () => {
 
     // Redirección automática: Si el usuario ya está logueado, lo mandamos a su pantalla correspondiente
     if (user) {
-        return <Navigate to={isAdmin ? "/" : "/registro-retiro"} replace />;
+        if (isAdmin) {
+            const institucion = StorageService.get(STORAGE_KEYS.INSTITUCION);
+            const isConfigured = institucion && institucion.nombre;
+            if (!isConfigured) {
+                return <Navigate to="/configuracion-inicial" replace />;
+            }
+            return <Navigate to="/" replace />;
+        }
+        return <Navigate to="/registro-retiro" replace />;
     }
 
     /**
@@ -44,8 +54,18 @@ const Login = () => {
             // Si falla, mostramos el mensaje de error correspondiente
             setError(result.message);
         } else {
-            // Si es exitoso, navegamos según el rol del usuario
-            navigate(result.role === 'ADMIN' ? "/" : "/registro-retiro");
+            // Si es exitoso, navegamos según el rol del usuario y el estado de la inicialización
+            if (result.role === 'ADMIN') {
+                const institucion = StorageService.get(STORAGE_KEYS.INSTITUCION);
+                const isConfigured = institucion && institucion.nombre;
+                if (!isConfigured) {
+                    navigate('/configuracion-inicial', { replace: true });
+                } else {
+                    navigate('/', { replace: true });
+                }
+            } else {
+                navigate('/registro-retiro', { replace: true });
+            }
         }
     };
 

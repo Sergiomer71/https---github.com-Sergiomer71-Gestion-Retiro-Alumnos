@@ -19,7 +19,10 @@ import HistorialRetirosPage from './pages/HistorialRetiros';
 import PreceptoresPage from './pages/Preceptores';
 import AltaCeladorPage from './pages/AltaCelador';
 import AltaCursoPage from './pages/AltaCurso';
-import { ROLES } from './config/constants';
+import ConfiguracionInicial from './pages/ConfiguracionInicial';
+import { ROLES, STORAGE_KEYS } from './config/constants';
+import StorageService from './storage/localStorage';
+import { useLocation } from 'react-router-dom';
 
 /**
  * Componente envoltorio para proteger rutas exclusivas de Administrador.
@@ -27,10 +30,28 @@ import { ROLES } from './config/constants';
  */
 const AdminRoute = ({ children }) => {
   const { user, isAdmin } = useAuth();
+  const location = useLocation();
+
   // Si no hay usuario, mandamos a loguear
   if (!user) return <Navigate to="/login" />;
+  
   // Si no es admin, lo mandamos a la única pantalla que tiene permitida (Celador)
   if (!isAdmin) return <Navigate to="/registro-retiro" />;
+
+  // Obligar a configurar la institución la primera vez
+  const institucion = StorageService.get(STORAGE_KEYS.INSTITUCION);
+  const isConfigured = institucion && institucion.nombre;
+
+  if (!isConfigured && location.pathname !== '/configuracion-inicial') {
+      // Si no existe o le falta el nombre, redirigir a config obligatoria
+      return <Navigate to="/configuracion-inicial" replace />;
+  }
+  
+  // Si intenta abrir la bienvenida inicial pero ya rellenó la info, lo disuadimos al dashboard
+  if (isConfigured && location.pathname === '/configuracion-inicial') {
+      return <Navigate to="/" replace />;
+  }
+
   return children;
 };
 
@@ -51,8 +72,13 @@ const CeladorRoute = ({ children }) => {
 const AppRoutes = () => {
   return (
     <Routes>
-      {/* Pantalla de acceso, fuera del Layout principal */}
+      {/* Pantallas completas externas al Layout principal */}
       <Route path="/login" element={<Login />} />
+      <Route path="/configuracion-inicial" element={
+        <AdminRoute>
+          <ConfiguracionInicial />
+        </AdminRoute>
+      } />
       
       {/* Rutas que utilizan el diseño común (Sidebar y Main) */}
       <Route path="/" element={<Layout />}>

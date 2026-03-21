@@ -17,6 +17,7 @@ export const STORAGE_KEYS = {
     PRECEPTORS: 'school_withdrawal_preceptors', // Listado de preceptores asignados
     CELADORES: 'school_withdrawal_celadores',   // Listado de celadores registrados
     CURSOS: 'school_withdrawal_cursos',         // Listado de cursos y divisiones
+    INSTITUCION: 'school_withdrawal_institucion',// Perfil público de la institución
 };
 
 /**
